@@ -26,10 +26,7 @@ export const metadata: Metadata = {
   description:
     'עיסוי מקצועי לגברים בירושלים – עיסוי רפואי, שוודי, כוסות רוח ואבנים חמות. בוגר מכללת רידמן. 050-8838374',
   keywords: 'עיסוי, עיסוי רפואי, עיסוי שוודי, כוסות רוח, אבנים חמות, ירושלים, מעסה',
-  icons: {
-    icon: '/favicon.ico',
-    apple: '/favicon.ico',
-  },
+
   openGraph: {
     title: 'שחרור במגע | עיסוי מקצועי לגברים בירושלים',
     description: 'עיסוי מקצועי לגברים בירושלים. עיסוי רפואי, שוודי, כוסות רוח, אבנים חמות.',
@@ -49,6 +46,11 @@ export default function RootLayout({
       dir="rtl"
       className={`${frankRuhl.variable} ${assistant.variable} ${heebo.variable}`}
     >
+      <head>
+        <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+        <link rel="apple-touch-icon" sizes="512x512" href="/icon-512.png" />
+      </head>
       <body className="min-h-full">
         <LangProvider>{children}</LangProvider>
       </body>
