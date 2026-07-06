@@ -1,0 +1,129 @@
+{
+  "nav": {
+    "home": "Home",
+    "services": "Treatments",
+    "about": "About",
+    "testimonials": "Testimonials",
+    "pricing": "Pricing",
+    "contact": "Contact",
+    "bookNow": "Book Now"
+  },
+  "hero": {
+    "title": "Shichrur Bemaga",
+    "subtitle": "Your path to healing and release",
+    "description": "Professional massage for men, combining Swedish, medical, and advanced therapeutic techniques – for pain relief, stress release, and restoring body-mind balance.",
+    "cta1": "Book a Session",
+    "cta2": "View Treatments",
+    "phone": "050-8838374"
+  },
+  "trust": {
+    "cert": "Believing in treatment through listening, body connection, and providing calm, healing and release",
+    "values": [
+      "Deep relaxation & stress relief",
+      "Pain relief & body ease",
+      "Professional & personal care",
+      "Personalized techniques"
+    ]
+  },
+  "services": {
+    "title": "Our Treatments",
+    "items": [
+      {
+        "id": "cupping",
+        "title": "Cupping Therapy",
+        "description": "Traditional treatment to release blockages, improve blood flow, relieve pain and reduce inflammation."
+      },
+      {
+        "id": "hot-stones",
+        "title": "Hot Stone Massage",
+        "description": "Massage with warm basalt stones for deep muscle release, improved circulation and complete relaxation."
+      },
+      {
+        "id": "medical",
+        "title": "Medical Massage",
+        "description": "Focused treatment for muscle issues, chronic pain, tension and injuries, personally tailored to your needs."
+      },
+      {
+        "id": "swedish",
+        "title": "Combined Swedish Massage",
+        "description": "Combination of Swedish massage techniques with deep muscle work, for full body balance and relaxation."
+      },
+      {
+        "id": "face-neck",
+        "title": "Face & Neck Massage",
+        "description": "Gentle, focused massage of the face, neck and scalp – to release muscle tension, reduce headaches and improve blood circulation to the skin."
+      }
+    ]
+  },
+  "about": {
+    "title": "About the Therapist",
+    "name": "Israel Matusov",
+    "credential": "Certified Swedish & Integrative Massage Therapist",
+    "badge": "Ridman College Graduate",
+    "bio": [
+      "Nice to meet you! I'm Israel Matusov, a certified massage therapist.",
+      "My vision is to help people with pain, stress, or tension, and treat them through touch. I believe massage is a wonderful tool that can solve many problems such as chronic pain, mental stress, muscle tightness, and movement difficulties.",
+      "I believe in providing treatment that is personally tailored to each person according to the need that brought them in.",
+      "So whether you're experiencing muscle pain or simply want to release stress and disconnect from daily pressures - you've come to the right place. My goal is to give you a calming and grounding experience that helps you release tension and reconnect with your body."
+    ]
+  },
+  "testimonials": {
+    "title": "What Clients Say",
+    "items": [
+      {
+        "name": "Shlomo S.",
+        "quote": "I enjoyed a wonderful massage from Israel this morning. He was attentive and professional, and focused on the issues that had been bothering me for a long time. Highly recommend."
+      },
+      {
+        "name": "Haim V.",
+        "quote": "A dreamy massage, released 4 months of tension from reserve duty. I'll definitely be back."
+      },
+      {
+        "name": "Roi K.",
+        "quote": "Israel was friendly and pleasant, tailored the massage to my needs and did an excellent job."
+      },
+      {
+        "name": "Lior Sh.",
+        "quote": "Great treatment, professional and patient."
+      }
+    ]
+  },
+  "pricing": {
+    "title": "Treatment Pricing",
+    "subtitle": "Personalized treatment, results you feel",
+    "note": "Treatments for men only",
+    "packagesTitle": "Value Packages",
+    "packagesDesc": "Details on packages and promotions – we'd love to update you!",
+    "contactCta": "Contact Us",
+    "items": [
+      { "name": "Swedish Massage", "variants": [{ "duration": "45 min", "price": "₪250" }, { "duration": "60 min", "price": "₪300" }] },
+      { "name": "Medical Massage", "variants": [{ "duration": "45 min", "price": "₪250" }, { "duration": "60 min", "price": "₪300" }] },
+      { "name": "Cupping Therapy", "variants": [{ "duration": "50 min", "price": "₪300" }] },
+      { "name": "Hot Stone Massage", "variants": [{ "duration": "50 min", "price": "₪300" }] },
+      { "name": "Face & Neck Massage", "variants": [{ "duration": "30 min", "price": "₪200" }] }
+    ]
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "We'd love to schedule your appointment",
+    "callLabel": "Call Directly",
+    "whatsappLabel": "WhatsApp",
+    "form": {
+      "namePlaceholder": "Your full name",
+      "phonePlaceholder": "Phone number",
+      "messagePlaceholder": "Hi, I'd like to book an appointment...",
+      "submitBtn": "Send via WhatsApp"
+    },
+    "locationsTitle": "Locations",
+    "locations": [
+      "Ben Bava 1, Jerusalem",
+      "Haim Brodi 15, Jerusalem",
+      "Home visits available"
+    ]
+  },
+  "footer": {
+    "rights": "All rights reserved",
+    "backToTop": "Back to top",
+    "country": "Israel"
+  }
+}
