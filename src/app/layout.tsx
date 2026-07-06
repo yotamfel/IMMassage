@@ -27,8 +27,8 @@ export const metadata: Metadata = {
     'עיסוי מקצועי לגברים בירושלים – עיסוי רפואי, שוודי, כוסות רוח ואבנים חמות. בוגר מכללת רידמן. 050-8838374',
   keywords: 'עיסוי, עיסוי רפואי, עיסוי שוודי, כוסות רוח, אבנים חמות, ירושלים, מעסה',
   icons: {
-    icon: '/favicon.png',
-    apple: '/favicon.png',
+    icon: '/favicon.ico',
+    apple: '/favicon.ico',
   },
   openGraph: {
     title: 'שחרור במגע | עיסוי מקצועי לגברים בירושלים',
