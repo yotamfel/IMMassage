@@ -6,6 +6,7 @@ import About from '@/components/sections/About';
 import Testimonials from '@/components/sections/Testimonials';
 import Pricing from '@/components/sections/Pricing';
 import Contact from '@/components/sections/Contact';
+import ReviewForm from '@/components/sections/ReviewForm';
 import Footer from '@/components/sections/Footer';
 import WhatsAppFAB from '@/components/WhatsAppFAB';
 
@@ -20,6 +21,7 @@ export default function Home() {
       <Testimonials />
       <Pricing />
       <Contact />
+      <ReviewForm />
       <Footer />
       <WhatsAppFAB />
     </main>

@@ -121,6 +121,17 @@
       "Home visits available"
     ]
   },
+  "review": {
+    "title": "Leave a Review",
+    "subtitle": "Your review is completely anonymous and helps us improve",
+    "placeholder": "Share your experience (optional)...",
+    "submit": "Submit Review",
+    "sending": "Sending...",
+    "success": "Thank you! Your review was received",
+    "error": "An error occurred, please try again",
+    "starLabel": "Choose a rating",
+    "anonymous": "Reviews are submitted completely anonymously"
+  },
   "footer": {
     "rights": "All rights reserved",
     "backToTop": "Back to top",
