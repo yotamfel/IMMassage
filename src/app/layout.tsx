@@ -46,12 +46,7 @@ export default function RootLayout({
       dir="rtl"
       className={`${frankRuhl.variable} ${assistant.variable} ${heebo.variable}`}
     >
-      <head>
-        <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
-        <link rel="apple-touch-icon" sizes="512x512" href="/icon-512.png" />
-      </head>
-      <body className="min-h-full">
+<body className="min-h-full">
         <LangProvider>{children}</LangProvider>
       </body>
     </html>
