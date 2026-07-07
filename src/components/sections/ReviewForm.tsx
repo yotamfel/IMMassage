@@ -7,6 +7,7 @@ export default function ReviewForm() {
   const { t } = useLang();
   const [stars, setStars] = useState(0);
   const [hovered, setHovered] = useState(0);
+  const [name, setName] = useState('');
   const [text, setText] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
@@ -20,11 +21,12 @@ export default function ReviewForm() {
       const res = await fetch('/api/review', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stars, text: text.trim() }),
+        body: JSON.stringify({ stars, text: text.trim(), name: name.trim() }),
       });
       if (res.ok) {
         setStatus('success');
         setStars(0);
+        setName('');
         setText('');
       } else {
         setStatus('error');
@@ -88,6 +90,15 @@ export default function ReviewForm() {
                 </button>
               ))}
             </div>
+
+            {/* Name */}
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={t.review.namePlaceholder}
+              className="w-full border border-primary/20 rounded-xl px-4 py-3 text-sm text-[#333] placeholder-[#bbb] focus:outline-none focus:ring-2 focus:ring-primary/30 bg-cream/40 mb-3"
+            />
 
             {/* Textarea */}
             <textarea

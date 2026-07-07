@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
-    const { stars, text } = await req.json();
+    const { stars, text, name } = await req.json();
 
     if (!stars || stars < 1 || stars > 5) {
       return NextResponse.json({ error: 'Invalid rating' }, { status: 400 });
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ stars, text: text || '' }),
+      body: JSON.stringify({ stars, text: text || '', name: name || '' }),
     });
 
     if (!response.ok) {

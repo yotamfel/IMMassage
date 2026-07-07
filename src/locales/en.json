@@ -130,6 +130,7 @@
     "success": "Thank you! Your review was received",
     "error": "An error occurred, please try again",
     "starLabel": "Choose a rating",
+    "namePlaceholder": "Your name (optional)",
     "anonymous": "Reviews are submitted completely anonymously"
   },
   "footer": {
