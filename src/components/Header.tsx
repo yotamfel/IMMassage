@@ -21,6 +21,7 @@ export default function Header() {
     { href: '#about', label: t.nav.about },
     { href: '#testimonials', label: t.nav.testimonials },
     { href: '#pricing', label: t.nav.pricing },
+    { href: '#review', label: t.nav.review },
   ];
 
   return (
