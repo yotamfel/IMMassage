@@ -75,6 +75,13 @@ export default function Header() {
 
 
           {/* Hamburger */}
+          <a
+            href="#booking"
+            className="hidden md:inline-flex items-center bg-primary text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-primary-dark transition-colors shadow"
+          >
+            {t.nav.bookNow}
+          </a>
+
           <button
             className="md:hidden p-2 text-primary-dark"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -106,6 +113,13 @@ export default function Header() {
               {link.label}
             </a>
           ))}
+          <a
+            href="#booking"
+            onClick={() => setMenuOpen(false)}
+            className="mt-4 block text-center bg-primary text-white font-semibold py-3 rounded-full hover:bg-primary-dark transition-colors"
+          >
+            {t.nav.bookNow}
+          </a>
         </div>
       )}
     </header>
