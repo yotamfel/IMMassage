@@ -6,6 +6,13 @@ type Slot = { id: string; date: string; time: string; location: string; duration
 
 const ISRAEL_PHONE = '972508838374';
 
+function parseLocations(locationStr: string): string[] {
+  try {
+    const parsed = JSON.parse(locationStr);
+    return Array.isArray(parsed) ? parsed : [locationStr];
+  } catch { return [locationStr]; }
+}
+
 function formatPhone(phone: string): string {
   const cleaned = phone.replace(/[^0-9]/g, '');
   if (cleaned.startsWith('972')) return cleaned;
@@ -33,6 +40,7 @@ export default function Booking() {
   const [loadingSlots, setLoadingSlots] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [step, setStep] = useState<'select' | 'details' | 'success'>('select');
@@ -55,20 +63,22 @@ export default function Booking() {
 
   const handleSelectSlot = (slot: Slot) => {
     setSelectedSlot(slot);
+    const locs = parseLocations(slot.location);
+    setSelectedLocation(locs.length === 1 ? locs[0] : '');
     setStep('details');
     setTimeout(() => document.getElementById('booking-form')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedSlot) return;
+    if (!selectedSlot || !selectedLocation) return;
     setSubmitting(true);
 
     const isHe = lang === 'he';
     const dateStr = formatDateLong(selectedSlot.date, lang);
     const msg = isHe
-      ? `היי ישראל, אשמח לקבוע תור 🙏\n📅 ${dateStr} בשעה ${selectedSlot.time.slice(0, 5)}\n📍 ${selectedSlot.location}\n⏱️ ${selectedSlot.duration_minutes} דקות\nשמי ${name}`
-      : `Hi Israel, I'd like to book an appointment 🙏\n📅 ${dateStr} at ${selectedSlot.time.slice(0, 5)}\n📍 ${selectedSlot.location}\n⏱️ ${selectedSlot.duration_minutes} min\nMy name is ${name}`;
+      ? `היי ישראל, אשמח לקבוע תור 🙏\n📅 ${dateStr} בשעה ${selectedSlot.time.slice(0, 5)}\n📍 ${selectedLocation}\n⏱️ ${selectedSlot.duration_minutes} דקות\nשמי ${name}`
+      : `Hi Israel, I'd like to book an appointment 🙏\n📅 ${dateStr} at ${selectedSlot.time.slice(0, 5)}\n📍 ${selectedLocation}\n⏱️ ${selectedSlot.duration_minutes} min\nMy name is ${name}`;
     const waLink = `https://wa.me/${ISRAEL_PHONE}?text=${encodeURIComponent(msg)}`;
 
     window.open(waLink, '_blank');
@@ -76,7 +86,7 @@ export default function Booking() {
     const res = await fetch('/api/bookings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slot_id: selectedSlot.id, client_name: name, client_phone: formatPhone(phone) }),
+      body: JSON.stringify({ slot_id: selectedSlot.id, client_name: name, client_phone: formatPhone(phone), selected_location: selectedLocation }),
     });
 
     if (res.ok) {
@@ -105,7 +115,6 @@ export default function Booking() {
           <p className="text-primary text-base">{t.booking.subtitle}</p>
         </div>
 
-        {/* SUCCESS */}
         {step === 'success' && (
           <div className="bg-[#f0f9f6] rounded-2xl p-8 text-center border border-[#2F6B6B]/20">
             <div className="text-4xl mb-3">✅</div>
@@ -114,7 +123,6 @@ export default function Booking() {
           </div>
         )}
 
-        {/* SLOT PICKER */}
         {step !== 'success' && (
           <>
             {loadingSlots && <p className="text-center text-gray-400 py-8">{t.booking.loading}</p>}
@@ -140,7 +148,7 @@ export default function Booking() {
                     return (
                       <button key={date} onClick={() => { setSelectedDate(date); setSelectedSlot(null); setStep('select'); }}
                         className={`flex-shrink-0 flex flex-col items-center px-5 py-3 text-center transition-colors border-b-2 min-w-[80px] ${
-                          isActive ? 'border-primary bg-primary/5 text-primary-dark' : 'border-transparent text-gray-500 hover:text-primary-dark hover:bg-primary/3'
+                          isActive ? 'border-primary bg-primary/5 text-primary-dark' : 'border-transparent text-gray-500 hover:text-primary-dark'
                         }`}>
                         <span className="text-xs font-medium">{weekday}</span>
                         <span className={`text-xl font-bold leading-tight ${isActive ? 'text-primary' : ''}`}>{day}</span>
@@ -162,7 +170,7 @@ export default function Booking() {
                           }`}>
                           <span className="font-bold text-base">{slot.time.slice(0, 5)}</span>
                           <span className={`text-xs mt-0.5 ${isSelected ? 'text-white/80' : 'text-gray-400'}`}>
-                            {slot.duration_minutes} {t.booking.minuteShort} · {slot.location}
+                            {slot.duration_minutes} {t.booking.minuteShort}
                           </span>
                         </button>
                       );
@@ -171,29 +179,60 @@ export default function Booking() {
                 </div>
 
                 {/* Details form */}
-                {step === 'details' && selectedSlot && (
-                  <div id="booking-form" className="border-t border-primary/10 bg-primary/3 p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <p className="text-sm font-semibold text-primary-dark">
-                        📅 {formatDateLong(selectedSlot.date, lang)}, {selectedSlot.time.slice(0, 5)} · 📍 {selectedSlot.location}
-                      </p>
-                      <button onClick={() => { setStep('select'); setSelectedSlot(null); }}
-                        className="text-gray-400 hover:text-gray-600 text-lg leading-none">✕</button>
+                {step === 'details' && selectedSlot && (() => {
+                  const locations = parseLocations(selectedSlot.location);
+                  return (
+                    <div id="booking-form" className="border-t border-primary/10 bg-primary/3 p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="text-sm font-semibold text-primary-dark">
+                          📅 {formatDateLong(selectedSlot.date, lang)}, {selectedSlot.time.slice(0, 5)} · ⏱️ {selectedSlot.duration_minutes} {t.booking.minuteShort}
+                        </p>
+                        <button onClick={() => { setStep('select'); setSelectedSlot(null); }}
+                          className="text-gray-400 hover:text-gray-600 text-lg leading-none">✕</button>
+                      </div>
+
+                      {/* Location selector - only shown when multiple options */}
+                      {locations.length > 1 && (
+                        <div className="mb-3">
+                          <p className="text-xs text-gray-500 mb-2">{lang === 'he' ? 'בחר מיקום' : 'Choose location'}</p>
+                          <div className="flex flex-col gap-1.5">
+                            {locations.map(loc => (
+                              <label key={loc} className={`flex items-center gap-2.5 cursor-pointer p-2.5 rounded-xl border-2 text-sm transition-colors ${
+                                selectedLocation === loc ? 'border-primary bg-primary/5 text-primary-dark font-medium' : 'border-gray-200 text-gray-600'
+                              }`}>
+                                <input type="radio" name="location" value={loc}
+                                  checked={selectedLocation === loc}
+                                  onChange={() => setSelectedLocation(loc)}
+                                  className="sr-only" />
+                                <span className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${selectedLocation === loc ? 'border-primary' : 'border-gray-300'}`}>
+                                  {selectedLocation === loc && <span className="w-2 h-2 rounded-full bg-primary block" />}
+                                </span>
+                                📍 {loc}
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {locations.length === 1 && (
+                        <p className="text-xs text-gray-500 mb-3">📍 {selectedLocation}</p>
+                      )}
+
+                      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
+                        <input type="text" value={name} onChange={e => setName(e.target.value)} required
+                          placeholder={t.booking.namePlaceholder}
+                          className="flex-1 border border-primary/20 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white" />
+                        <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required
+                          placeholder={t.booking.phonePlaceholder} dir="ltr"
+                          className="flex-1 border border-primary/20 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white" />
+                        <button type="submit" disabled={submitting || !selectedLocation}
+                          className="bg-primary hover:bg-primary-dark text-white font-semibold px-5 py-2.5 rounded-xl transition-colors disabled:opacity-50 text-sm whitespace-nowrap">
+                          {submitting ? t.booking.submitting : t.booking.submit}
+                        </button>
+                      </form>
                     </div>
-                    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
-                      <input type="text" value={name} onChange={e => setName(e.target.value)} required
-                        placeholder={t.booking.namePlaceholder}
-                        className="flex-1 border border-primary/20 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white" />
-                      <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required
-                        placeholder={t.booking.phonePlaceholder} dir="ltr"
-                        className="flex-1 border border-primary/20 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white" />
-                      <button type="submit" disabled={submitting}
-                        className="bg-primary hover:bg-primary-dark text-white font-semibold px-5 py-2.5 rounded-xl transition-colors disabled:opacity-50 text-sm whitespace-nowrap">
-                        {submitting ? t.booking.submitting : t.booking.submit}
-                      </button>
-                    </form>
-                  </div>
-                )}
+                  );
+                })()}
               </div>
             )}
           </>

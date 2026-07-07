@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
-// Public: get all available upcoming slots
 export async function GET() {
-  const today = new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const today = now.toISOString().split('T')[0];
+  const currentTime = now.toTimeString().slice(0, 8);
+
   const { data, error } = await supabase
     .from('slots')
     .select('*')
@@ -13,17 +15,17 @@ export async function GET() {
     .order('time');
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+
+  const filtered = (data || []).filter(s => s.date > today || s.time >= currentTime);
+  return NextResponse.json(filtered);
 }
 
-// Admin: add new slot
 export async function POST(req: NextRequest) {
   const session = req.cookies.get('admin_session')?.value;
   if (session !== process.env.ADMIN_SESSION_TOKEN) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  const body = await req.json();
-  const { date, time, location, duration_minutes } = body;
+  const { date, time, location, duration_minutes } = await req.json();
   if (!date || !time || !location || !duration_minutes) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   }

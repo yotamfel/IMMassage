@@ -4,7 +4,16 @@ import { useRouter } from 'next/navigation';
 
 // Types
 type Slot = { id: string; date: string; time: string; location: string; duration_minutes: number; is_booked: boolean };
-type Booking = { id: string; client_name: string; client_phone: string; status: string; review_sent: boolean; created_at: string; slots: Slot };
+type Booking = { id: string; client_name: string; client_phone: string; status: string; review_sent: boolean; created_at: string; slots: Slot; selected_location?: string };
+
+const LOCATIONS = ['בן בבא 1, ירושלים', 'חיים ברודי 15, ירושלים', 'ביקור בבית הלקוח'];
+
+function displayLocation(locationStr: string): string {
+  try {
+    const locs = JSON.parse(locationStr);
+    return Array.isArray(locs) ? locs.join(' / ') : locationStr;
+  } catch { return locationStr; }
+}
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('he-IL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -19,7 +28,8 @@ function formatPhone(phone: string): string {
 
 function confirmationLink(b: Booking): string {
   const formUrl = process.env.NEXT_PUBLIC_MEDICAL_FORM_URL || '';
-  const msg = `שלום ${b.client_name}! התור שלך אושר ✅\n📅 ${formatDate(b.slots.date)} בשעה ${b.slots.time.slice(0,5)}\n📍 ${b.slots.location}\n⏱️ ${b.slots.duration_minutes} דקות\n📋 אנא מלא שאלון רפואי לפני הטיפול:\n${formUrl}`;
+  const location = b.selected_location || b.slots?.location || '';
+  const msg = `שלום ${b.client_name}! התור שלך אושר ✅\n📅 ${formatDate(b.slots.date)} בשעה ${b.slots.time.slice(0,5)}\n📍 ${location}\n⏱️ ${b.slots.duration_minutes} דקות\n📋 אנא מלא שאלון רפואי לפני הטיפול:\n${formUrl}`;
   return `https://wa.me/${formatPhone(b.client_phone)}?text=${encodeURIComponent(msg)}`;
 }
 
@@ -49,9 +59,12 @@ export default function AdminDashboard() {
   // Add slot form
   const [newDate, setNewDate] = useState('');
   const [newTime, setNewTime] = useState('');
-  const [newLocation, setNewLocation] = useState('');
+  const [newLocations, setNewLocations] = useState<string[]>([]);
   const [newDuration, setNewDuration] = useState('60');
   const [addingSlot, setAddingSlot] = useState(false);
+
+  const toggleLocation = (loc: string) =>
+    setNewLocations(prev => prev.includes(loc) ? prev.filter(l => l !== loc) : [...prev, loc]);
 
   const fetchData = useCallback(async () => {
     const [slotsRes, bookingsRes] = await Promise.all([
@@ -76,14 +89,20 @@ export default function AdminDashboard() {
 
   const addSlot = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (newLocations.length === 0) return;
     setAddingSlot(true);
     await fetch('/api/slots', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ date: newDate, time: newTime, location: newLocation, duration_minutes: parseInt(newDuration) }),
+      body: JSON.stringify({ date: newDate, time: newTime, location: JSON.stringify(newLocations), duration_minutes: parseInt(newDuration) }),
     });
-    setNewDate(''); setNewTime(''); setNewLocation(''); setNewDuration('60');
+    setNewDate(''); setNewTime(''); setNewLocations([]); setNewDuration('60');
     setAddingSlot(false);
+    fetchData();
+  };
+
+  const releaseSlot = async (id: string) => {
+    await fetch(`/api/slots/${id}`, { method: 'PATCH' });
     fetchData();
   };
 
@@ -152,7 +171,7 @@ export default function AdminDashboard() {
                 {b.slots && (
                   <div className="bg-[#f5f0eb] rounded-xl p-3 mb-4 text-sm space-y-1">
                     <p>📅 {formatDate(b.slots.date)} בשעה {b.slots.time.slice(0,5)}</p>
-                    <p>📍 {b.slots.location}</p>
+                    <p>📍 {b.selected_location || displayLocation(b.slots.location)}</p>
                     <p>⏱️ {b.slots.duration_minutes} דקות</p>
                   </div>
                 )}
@@ -232,10 +251,15 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500 mb-1 block">מיקום</label>
-                  <input type="text" value={newLocation} onChange={e => setNewLocation(e.target.value)} required
-                    placeholder="לדוגמה: בן בבא 1, ירושלים"
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6B6B]/30" />
+                  <label className="text-xs text-gray-500 mb-2 block">מיקום (ניתן לסמן יותר מאחד)</label>
+                  <div className="space-y-2">
+                    {LOCATIONS.map(loc => (
+                      <label key={loc} className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-colors text-sm ${newLocations.includes(loc) ? 'border-[#2F6B6B] bg-[#2F6B6B]/5' : 'border-gray-200'}`}>
+                        <input type="checkbox" checked={newLocations.includes(loc)} onChange={() => toggleLocation(loc)} className="w-4 h-4 accent-[#2F6B6B]" />
+                        {loc}
+                      </label>
+                    ))}
+                  </div>
                 </div>
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">משך (דקות)</label>
@@ -259,19 +283,26 @@ export default function AdminDashboard() {
             <div className="space-y-2">
               {slots.length === 0 && <div className="bg-white rounded-2xl p-6 text-center text-gray-400 shadow-sm">אין שעות זמינות</div>}
               {slots.map(s => (
-                <div key={s.id} className={`bg-white rounded-2xl px-4 py-3 shadow-sm flex items-center justify-between ${s.is_booked ? 'opacity-50' : ''}`}>
+                <div key={s.id} className={`bg-white rounded-2xl px-4 py-3 shadow-sm flex items-center justify-between ${s.is_booked ? 'opacity-60' : ''}`}>
                   <div>
                     <p className="font-semibold text-[#2F6B6B] text-sm">{formatDate(s.date)} · {s.time.slice(0,5)}</p>
-                    <p className="text-gray-500 text-xs">📍 {s.location} · {s.duration_minutes} דק&apos;</p>
-                    {s.is_booked && <span className="text-xs text-amber-600">תפוס</span>}
+                    <p className="text-gray-500 text-xs">📍 {displayLocation(s.location)} · {s.duration_minutes} דק&apos;</p>
+                    {s.is_booked && <span className="text-xs text-amber-600 font-medium">תפוס</span>}
                   </div>
-                  {!s.is_booked && (
-                    <button onClick={() => deleteSlot(s.id)} className="text-red-400 hover:text-red-600 transition-colors p-2">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {s.is_booked && (
+                      <button onClick={() => releaseSlot(s.id)} className="text-xs text-amber-600 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg transition-colors font-medium">
+                        שחרר
+                      </button>
+                    )}
+                    {!s.is_booked && (
+                      <button onClick={() => deleteSlot(s.id)} className="text-red-400 hover:text-red-600 transition-colors p-2">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
