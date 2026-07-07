@@ -36,6 +36,7 @@ function formatDateTab(dateStr: string, lang: string) {
 
 export default function Booking() {
   const { t, lang } = useLang();
+  const isHe = lang === 'he';
   const [slots, setSlots] = useState<Slot[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -74,15 +75,6 @@ export default function Booking() {
     if (!selectedSlot || !selectedLocation) return;
     setSubmitting(true);
 
-    const isHe = lang === 'he';
-    const dateStr = formatDateLong(selectedSlot.date, lang);
-    const msg = isHe
-      ? `היי ישראל, אשמח לקבוע תור 🙏\n📅 ${dateStr} בשעה ${selectedSlot.time.slice(0, 5)}\n📍 ${selectedLocation}\n⏱️ ${selectedSlot.duration_minutes} דקות\nשמי ${name}`
-      : `Hi Israel, I'd like to book an appointment 🙏\n📅 ${dateStr} at ${selectedSlot.time.slice(0, 5)}\n📍 ${selectedLocation}\n⏱️ ${selectedSlot.duration_minutes} min\nMy name is ${name}`;
-    const waLink = `https://wa.me/${ISRAEL_PHONE}?text=${encodeURIComponent(msg)}`;
-
-    window.open(waLink, '_blank');
-
     const res = await fetch('/api/bookings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -96,6 +88,7 @@ export default function Booking() {
       const err = await res.json().catch(() => ({}));
       if (err.error === 'Slot not available') {
         alert(isHe ? 'מצטערים, השעה הזו כבר לא פנויה' : 'Sorry, this slot is no longer available');
+
         setSlots(prev => prev.filter(s => s.id !== selectedSlot.id));
         setStep('select');
         setSelectedSlot(null);
