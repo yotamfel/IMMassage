@@ -60,7 +60,13 @@ function rejectionLink(b: Booking): string {
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const [tab, setTab] = useState<'slots' | 'bookings' | 'reviews'>('bookings');
+  const [tab, setTab] = useState<'slots' | 'bookings' | 'reviews' | 'calendar'>('bookings');
+  const [calWeekStart, setCalWeekStart] = useState<Date>(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - d.getDay()); // back to Sunday
+    d.setHours(0, 0, 0, 0);
+    return d;
+  });
   const [slots, setSlots] = useState<Slot[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -166,6 +172,7 @@ export default function AdminDashboard() {
           <button className={tabClass('reviews')} onClick={() => setTab('reviews')}>
             ביקורות {reviewDue.length > 0 && <span className="mr-1 bg-amber-500 text-white text-xs rounded-full px-1.5">{reviewDue.length}</span>}
           </button>
+          <button className={tabClass('calendar')} onClick={() => setTab('calendar')}>יומן</button>
         </div>
 
         {/* BOOKINGS TAB */}
@@ -319,6 +326,84 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+
+        {/* CALENDAR TAB */}
+        {tab === 'calendar' && (() => {
+          const weekDays = Array.from({ length: 7 }, (_, i) => {
+            const d = new Date(calWeekStart);
+            d.setDate(calWeekStart.getDate() + i);
+            return d;
+          });
+          const weekEnd = weekDays[6];
+          const todayStr = new Date().toISOString().split('T')[0];
+
+          const byDate: Record<string, Booking[]> = {};
+          confirmed.forEach(b => {
+            if (b.slots?.date) {
+              byDate[b.slots.date] = byDate[b.slots.date] || [];
+              byDate[b.slots.date].push(b);
+            }
+          });
+
+          const fmtRange = () => {
+            const opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
+            const s = calWeekStart.toLocaleDateString('he-IL', opts);
+            const e = weekEnd.toLocaleDateString('he-IL', { ...opts, year: 'numeric' });
+            return `${s} - ${e}`;
+          };
+
+          return (
+            <div className="space-y-3">
+              {/* Week nav */}
+              <div className="bg-white rounded-2xl px-4 py-3 shadow-sm flex items-center justify-between">
+                <button onClick={() => setCalWeekStart(d => { const p = new Date(d); p.setDate(d.getDate() - 7); return p; })}
+                  className="text-[#2F6B6B] hover:text-[#1F4A4A] p-1 rounded-lg hover:bg-[#2F6B6B]/10 transition-colors text-lg">→</button>
+                <p className="text-sm font-semibold text-[#2F6B6B] text-center">{fmtRange()}</p>
+                <button onClick={() => setCalWeekStart(d => { const n = new Date(d); n.setDate(d.getDate() + 7); return n; })}
+                  className="text-[#2F6B6B] hover:text-[#1F4A4A] p-1 rounded-lg hover:bg-[#2F6B6B]/10 transition-colors text-lg">←</button>
+              </div>
+
+              {/* Days */}
+              {weekDays.map(day => {
+                const dateStr = day.toISOString().split('T')[0];
+                const dayBookings = (byDate[dateStr] || []).sort((a, b) => a.slots.time.localeCompare(b.slots.time));
+                const isToday = dateStr === todayStr;
+                const weekdayName = day.toLocaleDateString('he-IL', { weekday: 'long' });
+                const dayNum = day.toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric' });
+
+                return (
+                  <div key={dateStr} className={`bg-white rounded-2xl overflow-hidden shadow-sm ${dayBookings.length === 0 ? 'opacity-50' : ''}`}>
+                    <div className={`px-4 py-2.5 flex items-center gap-2 ${isToday ? 'bg-[#2F6B6B] text-white' : 'border-b border-gray-100'}`}>
+                      <span className={`font-semibold text-sm ${isToday ? 'text-white' : 'text-[#2F6B6B]'}`}>{weekdayName}</span>
+                      <span className={`text-xs ${isToday ? 'text-white/80' : 'text-gray-400'}`}>{dayNum}</span>
+                      {isToday && <span className="mr-auto text-xs bg-white/20 px-2 py-0.5 rounded-full">היום</span>}
+                    </div>
+                    {dayBookings.length === 0 ? (
+                      <p className="text-gray-300 text-xs px-4 py-2">אין תורים</p>
+                    ) : (
+                      <div className="divide-y divide-gray-50">
+                        {dayBookings.map(b => (
+                          <div key={b.id} className="px-4 py-3 flex items-start gap-3">
+                            <span className="text-[#2F6B6B] font-bold text-sm min-w-[40px]">{b.slots.time.slice(0, 5)}</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-gray-800 text-sm">{b.client_name}</p>
+                              {b.treatment_name && (
+                                <p className="text-xs text-gray-500">{b.treatment_name} · {b.duration_minutes} דק&apos;</p>
+                              )}
+                              {(b.selected_location || b.slots?.location) && (
+                                <p className="text-xs text-gray-400 truncate">📍 {b.selected_location || displayLocation(b.slots.location)}</p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
 
         {/* REVIEWS TAB */}
         {tab === 'reviews' && (
