@@ -206,7 +206,7 @@ export default function AdminDashboard() {
 
             {confirmed.length > 0 && (
               <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-2 px-1">אושרו</h3>
+                <h3 className="text-sm font-medium text-gray-500 mb-2 px-1">בתהליך</h3>
                 {confirmed.map(b => (
                   <div key={b.id} className="bg-white rounded-2xl p-4 shadow-sm border-r-4 border-green-400 mb-3">
                     <div className="flex items-center justify-between mb-3">
@@ -215,7 +215,9 @@ export default function AdminDashboard() {
                         {b.slots && <p className="text-xs text-gray-500">📅 {formatDate(b.slots.date)} {b.slots.time.slice(0,5)} · 📍 {b.selected_location || displayLocation(b.slots.location)}</p>}
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">אושר</span>
+                        <span className={`text-xs px-2 py-1 rounded-full ${b.final_confirmation_sent ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                          {b.final_confirmation_sent ? 'אושר' : 'בתהליך'}
+                        </span>
                         <button onClick={() => deleteBooking(b.id, b.client_name)} title="מחק בקשה"
                           className="text-gray-300 hover:text-red-400 transition-colors p-1">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
