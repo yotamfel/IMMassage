@@ -463,8 +463,8 @@ export default function AdminDashboard() {
             <div className="flex flex-wrap gap-x-4 gap-y-1.5 px-2 pt-1 pb-2">
               <span className="flex items-center gap-1.5 text-xs text-gray-400"><span className="w-2 h-2 rounded-full bg-emerald-400" />פנוי לקביעה</span>
               <span className="flex items-center gap-1.5 text-xs text-gray-400"><span className="w-2 h-2 rounded-full bg-amber-400" />ממתין לאישור</span>
-              <span className="flex items-center gap-1.5 text-xs text-gray-400"><span className="w-2 h-2 rounded-full bg-blue-400" />אושר</span>
-              <span className="flex items-center gap-1.5 text-xs text-gray-400"><span className="w-2 h-2 rounded-full bg-[#2F6B6B]" />אישור סופי נשלח</span>
+              <span className="flex items-center gap-1.5 text-xs text-gray-400"><span className="w-2 h-2 rounded-full bg-blue-400" />בתהליך</span>
+              <span className="flex items-center gap-1.5 text-xs text-gray-400"><span className="w-2 h-2 rounded-full bg-[#2F6B6B]" />אושר סופית</span>
             </div>
           </div>
         )}
