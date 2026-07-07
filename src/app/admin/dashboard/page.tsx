@@ -47,11 +47,8 @@ function reviewLink(b: Booking): string {
   return `https://wa.me/${formatPhone(b.client_phone)}?text=${encodeURIComponent(msg)}`;
 }
 
-function isAppointmentOver(b: Booking): boolean {
-  const duration = b.duration_minutes || b.slots.duration_minutes || 60;
-  const end = new Date(`${b.slots.date}T${b.slots.time}`);
-  end.setMinutes(end.getMinutes() + duration + 30);
-  return new Date() >= end;
+function isAppointmentStarted(b: Booking): boolean {
+  return new Date() >= new Date(`${b.slots.date}T${b.slots.time}`);
 }
 
 function todayStr() { return new Date().toISOString().split('T')[0]; }
@@ -124,7 +121,7 @@ export default function AdminDashboard() {
 
   const pending = bookings.filter(b => b.status === 'pending');
   const confirmed = bookings.filter(b => b.status === 'confirmed');
-  const reviewDue = confirmed.filter(b => !b.review_sent && b.slots && isAppointmentOver(b));
+  const reviewDue = confirmed.filter(b => !b.review_sent && b.slots && isAppointmentStarted(b));
 
   const tabClass = (t: string) =>
     `px-4 py-2 text-sm font-medium rounded-full transition-colors ${tab === t ? 'bg-[#2F6B6B] text-white' : 'text-[#2F6B6B] hover:bg-[#2F6B6B]/10'}`;
