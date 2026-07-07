@@ -356,7 +356,7 @@ export default function AdminDashboard() {
                 if (!slot) {
                   return (
                     <div key={hour} className={`flex items-center gap-3 px-2 py-1.5 rounded-xl transition-colors ${isPast ? 'opacity-25 pointer-events-none' : 'group hover:bg-white/60'}`}>
-                      <span className="text-xs text-gray-400 w-11 text-left flex-shrink-0 tabular-nums">{timeStr}</span>
+                      <span className="text-xs text-gray-900 font-medium w-11 text-left flex-shrink-0 tabular-nums">{timeStr}</span>
                       <div className="flex-1 h-px bg-gray-200/60 group-hover:bg-[#2F6B6B]/20 transition-colors" />
                       {!isPast && (
                         <button onClick={() => addSlotFromCalendar(calSelectedDay, hour)}
@@ -372,7 +372,7 @@ export default function AdminDashboard() {
                 if (!slot.is_booked) {
                   return (
                     <div key={hour} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border border-[#2F6B6B]/20 ${isPast ? 'opacity-40' : 'bg-gradient-to-l from-[#2F6B6B]/5 to-[#2F6B6B]/10'}`}>
-                      <span className="text-xs font-bold text-[#2F6B6B] w-11 flex-shrink-0 tabular-nums">{timeStr}</span>
+                      <span className="text-xs font-bold text-gray-900 w-11 flex-shrink-0 tabular-nums">{timeStr}</span>
                       <span className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0" />
                       <span className="text-sm text-[#2F6B6B] font-medium flex-1">פנוי לקביעה</span>
                       <button onClick={() => removeCalendarSlot(slot.id)}
@@ -385,7 +385,7 @@ export default function AdminDashboard() {
                 if (!booking) {
                   return (
                     <div key={hour} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gray-100/80 border border-gray-200 opacity-60">
-                      <span className="text-xs text-gray-500 w-11 flex-shrink-0 tabular-nums">{timeStr}</span>
+                      <span className="text-xs text-gray-900 font-medium w-11 flex-shrink-0 tabular-nums">{timeStr}</span>
                       <span className="text-xs text-gray-400 flex-1">תפוס</span>
                       <button onClick={() => releaseSlot(slot.id)} className="text-xs text-gray-400 hover:text-amber-600 bg-white px-2 py-1 rounded-lg transition-colors border border-gray-200">שחרר</button>
                     </div>
@@ -396,7 +396,7 @@ export default function AdminDashboard() {
                 if (booking.status === 'pending') {
                   return (
                     <div key={hour} className="flex items-center gap-3 px-3 py-3 rounded-xl bg-white shadow-sm border-r-[3px] border-amber-400">
-                      <span className="text-xs font-bold text-amber-600 w-11 flex-shrink-0 tabular-nums">{timeStr}</span>
+                      <span className="text-xs font-bold text-gray-900 w-11 flex-shrink-0 tabular-nums">{timeStr}</span>
                       <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 text-sm font-bold text-amber-700">
                         {booking.client_name.charAt(0)}
                       </div>
@@ -423,7 +423,7 @@ export default function AdminDashboard() {
                         ? 'bg-white border-[#2F6B6B] hover:shadow-md'
                         : 'bg-white border-blue-400 hover:shadow-md'
                     }`}>
-                    <span className={`text-xs font-bold w-11 flex-shrink-0 tabular-nums pt-0.5 ${isFinal ? 'text-[#2F6B6B]' : 'text-blue-600'}`}>{timeStr}</span>
+                    <span className={`text-xs font-bold w-11 flex-shrink-0 tabular-nums pt-0.5 text-gray-900`}>{timeStr}</span>
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold ${isFinal ? 'bg-[#2F6B6B]/12 text-[#2F6B6B]' : 'bg-blue-100 text-blue-700'}`}>
                       {booking.client_name.charAt(0)}
                     </div>
