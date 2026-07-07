@@ -260,10 +260,16 @@ export default function AdminDashboard() {
                     <p className="font-semibold text-[#2F6B6B]">{b.client_name}</p>
                     <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full">נדחה</span>
                   </div>
-                  <a href={rejectionLink(b)} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 bg-gray-100 text-gray-700 py-2 rounded-xl text-sm font-semibold w-full">
-                    שלח הודעת דחייה ללקוח
-                  </a>
+                  <div className="flex gap-2">
+                    <a href={rejectionLink(b)} target="_blank" rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-2 bg-gray-100 text-gray-700 py-2 rounded-xl text-sm font-semibold">
+                      שלח הודעת דחייה ללקוח
+                    </a>
+                    <button onClick={() => deleteBooking(b.id, b.client_name)}
+                      className="px-4 bg-red-50 text-red-400 hover:text-red-600 hover:bg-red-100 rounded-xl text-sm font-semibold transition-colors">
+                      מחק
+                    </button>
+                  </div>
                 </div>
               );
             })}
