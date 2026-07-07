@@ -168,13 +168,13 @@ export default function AdminDashboard() {
       <div className="max-w-2xl mx-auto px-4 py-6">
         {/* Tabs */}
         <div className="flex gap-2 mb-6 bg-white rounded-2xl p-2 shadow-sm">
+          <button className={tabClass('calendar')} onClick={() => setTab('calendar')}>יומן</button>
           <button className={tabClass('bookings')} onClick={() => setTab('bookings')}>
             בקשות תור {pending.length > 0 && <span className="mr-1 bg-red-500 text-white text-xs rounded-full px-1.5">{pending.length}</span>}
           </button>
           <button className={tabClass('reviews')} onClick={() => setTab('reviews')}>
             ביקורות {reviewDue.length > 0 && <span className="mr-1 bg-amber-500 text-white text-xs rounded-full px-1.5">{reviewDue.length}</span>}
           </button>
-          <button className={tabClass('calendar')} onClick={() => setTab('calendar')}>יומן</button>
         </div>
 
         {/* ── BOOKINGS TAB ── */}
