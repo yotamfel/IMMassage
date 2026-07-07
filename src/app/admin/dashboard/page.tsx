@@ -33,7 +33,7 @@ function questionnaireLink(b: Booking): string {
 }
 
 function reviewLink(b: Booking): string {
-  const msg = `היי ${b.client_name} 😊 נשמח שתשאיר ביקורת קצרה על הטיפול:\nhttps://shahrur-bamaga.vercel.app/#review`;
+  const msg = `היי! שמחתי לטפל בך.\nאם תרצה, אשמח שתשאיר לי ביקורת קצרה - זה עוזר לי מאוד.\nאפשר דרך הקישור הזה (לוקח פחות מדקה):\nhttps://shahrur-bamaga.vercel.app/#review`;
   return `https://wa.me/${formatPhone(b.client_phone)}?text=${encodeURIComponent(msg)}`;
 }
 
