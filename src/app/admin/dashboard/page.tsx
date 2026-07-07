@@ -97,7 +97,6 @@ export default function AdminDashboard() {
   };
 
   const removeCalendarSlot = async (id: string) => {
-    if (!window.confirm('להסיר את השעה הזו מהאתר?')) return;
     await fetch(`/api/slots/${id}`, { method: 'DELETE' });
     fetchData();
   };
