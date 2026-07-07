@@ -21,7 +21,6 @@ export default function Header() {
     { href: '#about', label: t.nav.about },
     { href: '#testimonials', label: t.nav.testimonials },
     { href: '#pricing', label: t.nav.pricing },
-    { href: '#booking', label: t.nav.bookNow },
     { href: '#review', label: t.nav.review },
   ];
 
@@ -74,12 +73,6 @@ export default function Header() {
             {lang === 'he' ? 'EN' : 'עב'}
           </button>
 
-          <a
-            href="#booking"
-            className="hidden md:inline-flex items-center bg-primary text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-primary-dark transition-colors shadow"
-          >
-            {t.nav.bookNow}
-          </a>
 
           {/* Hamburger */}
           <button
@@ -113,13 +106,6 @@ export default function Header() {
               {link.label}
             </a>
           ))}
-          <a
-            href="#booking"
-            onClick={() => setMenuOpen(false)}
-            className="mt-4 block text-center bg-primary text-white font-semibold py-3 rounded-full hover:bg-primary-dark transition-colors"
-          >
-            {t.nav.bookNow}
-          </a>
         </div>
       )}
     </header>

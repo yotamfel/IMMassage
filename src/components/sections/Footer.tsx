@@ -34,7 +34,10 @@ export default function Footer() {
           <p className="text-white/50 text-sm">
             &copy; {year} שחרור במגע &bull; {t.footer.rights}
           </p>
-          <p className="text-white/40 text-xs mt-1">{t.footer.country} &bull; 050-8838374</p>
+          <p className="text-white/40 text-xs mt-1">
+            {t.footer.country} &bull; 050-8838374 &bull;{' '}
+            <a href="/admin" className="text-white/20 hover:text-white/40 transition-colors">·</a>
+          </p>
         </div>
 
         {/* Back to top */}
