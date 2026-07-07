@@ -17,7 +17,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!auth(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const { id } = await params;
-  await supabase.from('bookings').update({ status: 'rejected' }).eq('slot_id', id).eq('status', 'pending');
+  await supabase.from('bookings').update({ status: 'rejected' }).eq('slot_id', id).in('status', ['pending', 'confirmed']);
   const { error } = await supabase.from('slots').update({ is_booked: false }).eq('id', id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ success: true });

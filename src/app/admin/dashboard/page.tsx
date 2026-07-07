@@ -354,26 +354,26 @@ export default function AdminDashboard() {
                 const booking = slot ? bookingBySlotId[slot.id] : undefined;
                 const isPast = isSelectedToday && hour < nowHour;
 
-                // Empty — no slot
+                // Empty — no slot: hide past hours entirely
                 if (!slot) {
+                  if (isPast) return null;
                   return (
-                    <div key={hour} className={`flex items-center gap-3 px-2 py-1.5 rounded-xl transition-colors ${isPast ? 'opacity-25 pointer-events-none' : 'group hover:bg-white/60'}`}>
+                    <div key={hour} className="flex items-center gap-3 px-2 py-1.5 rounded-xl transition-colors group hover:bg-white/60">
                       <span className="text-xs text-gray-900 font-medium w-11 text-left flex-shrink-0 tabular-nums">{timeStr}</span>
                       <div className="flex-1 h-px bg-gray-200/60 group-hover:bg-[#2F6B6B]/20 transition-colors" />
-                      {!isPast && (
-                        <button onClick={() => addSlotFromCalendar(calSelectedDay, hour)}
-                          className="opacity-0 group-hover:opacity-100 text-xs text-[#2F6B6B] bg-[#2F6B6B]/8 hover:bg-[#2F6B6B]/15 px-3 py-1 rounded-lg border border-dashed border-[#2F6B6B]/30 transition-all flex-shrink-0">
-                          + פתח
-                        </button>
-                      )}
+                      <button onClick={() => addSlotFromCalendar(calSelectedDay, hour)}
+                        className="opacity-0 group-hover:opacity-100 text-xs text-[#2F6B6B] bg-[#2F6B6B]/8 hover:bg-[#2F6B6B]/15 px-3 py-1 rounded-lg border border-dashed border-[#2F6B6B]/30 transition-all flex-shrink-0">
+                        + פתח
+                      </button>
                     </div>
                   );
                 }
 
-                // Available (open, not booked)
+                // Available (open, not booked): hide past available slots
                 if (!slot.is_booked) {
+                  if (isPast) return null;
                   return (
-                    <div key={hour} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border border-[#2F6B6B]/20 ${isPast ? 'opacity-40' : 'bg-gradient-to-l from-[#2F6B6B]/5 to-[#2F6B6B]/10'}`}>
+                    <div key={hour} className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-[#2F6B6B]/20 bg-gradient-to-l from-[#2F6B6B]/5 to-[#2F6B6B]/10">
                       <span className="text-xs font-bold text-gray-900 w-11 flex-shrink-0 tabular-nums">{timeStr}</span>
                       <span className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0" />
                       <span className="text-sm text-[#2F6B6B] font-medium flex-1">פנוי לקביעה</span>
@@ -450,6 +450,11 @@ export default function AdminDashboard() {
                           )}
                           <p className="text-xs text-gray-500">📍 {booking.selected_location || displayLocation(slot.location)}</p>
                           <p className="text-xs text-gray-400" dir="ltr">{booking.client_phone}</p>
+                          <button
+                            onClick={e => { e.stopPropagation(); releaseSlot(slot.id); }}
+                            className="mt-1 text-xs text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-lg transition-colors border border-red-200">
+                            שחרר שעה
+                          </button>
                         </div>
                       )}
                     </div>
