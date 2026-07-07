@@ -33,7 +33,7 @@ function questionnaireLink(b: Booking): string {
 }
 
 function reviewLink(b: Booking): string {
-  const msg = `היי! שמחתי לטפל בך.\nאם תרצה, אשמח שתשאיר לי ביקורת קצרה - זה עוזר לי מאוד.\nאפשר דרך הקישור הזה (לוקח פחות מדקה):\nhttps://shahrur-bamaga.vercel.app/#review`;
+  const msg = `היי! שמחתי לטפל בך.\nאם תרצה, אשמח שתשאיר לי ביקורת קצרה - זה עוזר לי מאוד.\nאפשר דרך הקישור הזה (לוקח פחות מדקה):\nhttps://shahrur-bamaga.vercel.app/#review\n\nחשוב מאוד, יכול להיות שביום אחרי הטיפול תהיה הרגשה של שרירים תפוסים וכאבים באזורים עליהם עבדתי. הכאב יחלוף תוך כמה ימים, מומלץ לא לעשות כושר עד 24 שעות לאחר הטיפול.`;
   return `https://wa.me/${formatPhone(b.client_phone)}?text=${encodeURIComponent(msg)}`;
 }
 
@@ -48,7 +48,7 @@ function finalConfirmationLink(b: Booking): string {
   const location = b.selected_location || b.slots?.location || '';
   const duration = b.duration_minutes || b.slots?.duration_minutes || 60;
   const treatment = b.treatment_name ? `\n💆 ${b.treatment_name}` : '';
-  const msg = `שלום ${b.client_name}! התור שלך אושר סופית ✅\n📅 ${formatDate(b.slots.date)} בשעה ${b.slots.time.slice(0,5)}\n📍 ${location}${treatment}\n⏱️ ${duration} דקות\nמצפה לראותך!`;
+  const msg = `שלום ${b.client_name}! התור שלך אושר סופית ✅\n📅 ${formatDate(b.slots.date)} בשעה ${b.slots.time.slice(0,5)}\n📍 ${location}${treatment}\n⏱️ ${duration} דקות\nמצפה לראותך!\n\nשים לב ❤️, ניתן לבטל תור עד 24 שעות לפני. תור שיבוטל בסמוך יחויב מחיר מלא.`;
   return `https://wa.me/${formatPhone(b.client_phone)}?text=${encodeURIComponent(msg)}`;
 }
 
