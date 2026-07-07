@@ -96,6 +96,8 @@
     "packagesTitle": "חבילות משתלמות",
     "packagesDesc": "פרטים על חבילות ומבצעים – נשמח לעדכן אותך!",
     "contactCta": "צור קשר",
+    "voucherLabel": "לקניית שובר מתנה, ניתן ליצור קשר",
+    "voucherWhatsapp": "היי, אשמח לקנות שובר מתנה",
     "items": [
       { "name": "עיסוי שוודי", "variants": [{ "duration": "45 דקות", "price": "250 ₪" }, { "duration": "60 דקות", "price": "300 ₪" }] },
       { "name": "עיסוי רפואי", "variants": [{ "duration": "45 דקות", "price": "250 ₪" }, { "duration": "60 דקות", "price": "300 ₪" }] },
@@ -113,6 +115,7 @@
       "namePlaceholder": "שמך המלא",
       "phonePlaceholder": "מספר טלפון",
       "messagePlaceholder": "היי, אשמח לקבוע תור...",
+      "whatsappText": "היי, אשמח לקבוע תור לעיסוי",
       "submitBtn": "שלח בוואטסאפ"
     },
     "locationsTitle": "מיקומים",

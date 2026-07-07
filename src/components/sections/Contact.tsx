@@ -60,7 +60,7 @@ export default function Contact() {
           <div className="flex flex-col gap-6">
             {/* WhatsApp */}
             <a
-              href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('היי, אשמח לקבוע תור לעיסוי')}`}
+              href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(t.contact.form.whatsappText)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-4 bg-white/10 border border-white/20 rounded-2xl p-5 hover:bg-white/20 transition-colors group"

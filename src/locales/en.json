@@ -96,6 +96,8 @@
     "packagesTitle": "Value Packages",
     "packagesDesc": "Details on packages and promotions – we'd love to update you!",
     "contactCta": "Contact Us",
+    "voucherLabel": "To purchase a gift voucher, contact us",
+    "voucherWhatsapp": "Hi, I'd like to buy a gift voucher",
     "items": [
       { "name": "Swedish Massage", "variants": [{ "duration": "45 min", "price": "₪250" }, { "duration": "60 min", "price": "₪300" }] },
       { "name": "Medical Massage", "variants": [{ "duration": "45 min", "price": "₪250" }, { "duration": "60 min", "price": "₪300" }] },
@@ -113,6 +115,7 @@
       "namePlaceholder": "Your full name",
       "phonePlaceholder": "Phone number",
       "messagePlaceholder": "Hi, I'd like to book an appointment...",
+      "whatsappText": "Hi, I'd like to book a massage appointment",
       "submitBtn": "Send via WhatsApp"
     },
     "locationsTitle": "Locations",
