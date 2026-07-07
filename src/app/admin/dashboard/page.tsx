@@ -434,7 +434,11 @@ export default function AdminDashboard() {
                       </div>
                       {!isExp && (
                         <p className={`text-xs mt-0.5 ${isFinal ? 'text-[#2F6B6B]/70' : 'text-blue-500'}`}>
-                          {booking.treatment_name || (isFinal ? 'אישור סופי נשלח' : 'ממתין לאישור סופי')}
+                          {isFinal
+                            ? (booking.treatment_name || 'אישור סופי נשלח')
+                            : booking.questionnaire_sent
+                              ? 'ממתין לאישור סופי'
+                              : 'ממתין לשאלון רפואי'}
                         </p>
                       )}
                       {isExp && (
