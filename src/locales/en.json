@@ -149,8 +149,8 @@
     "contactWhatsApp": "Contact via WhatsApp",
     "selectSlot": "Choose a time",
     "yourDetails": "Your details",
-    "successTitle": "Request received!",
-    "successText": "Tap the button below to send your booking request to Israel on WhatsApp. He will confirm shortly.",
+    "successTitle": "Request sent!",
+    "successText": "WhatsApp opened with your request to Israel. He will confirm shortly.",
     "sendWhatsApp": "Send request via WhatsApp",
     "minuteShort": "min"
   },
