@@ -140,10 +140,13 @@ export default function AdminDashboard() {
     fetchData();
   };
 
-  const deleteBooking = async (id: string) => {
+  const deleteBooking = async (id: string, name: string) => {
+    if (!window.confirm(`למחוק את הבקשה של ${name}?`)) return;
     await fetch(`/api/admin/bookings/${id}`, { method: 'DELETE' });
     fetchData();
   };
+
+  const [expandedCalId, setExpandedCalId] = useState<string | null>(null);
 
   const pending = bookings.filter(b => b.status === 'pending');
   const confirmed = bookings.filter(b => b.status === 'confirmed');
@@ -215,7 +218,7 @@ export default function AdminDashboard() {
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">אושר</span>
-                        <button onClick={() => deleteBooking(b.id)} title="מחק בקשה"
+                        <button onClick={() => deleteBooking(b.id, b.client_name)} title="מחק בקשה"
                           className="text-gray-300 hover:text-red-400 transition-colors p-1">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -382,20 +385,29 @@ export default function AdminDashboard() {
                       <p className="text-gray-300 text-xs px-4 py-2">אין תורים</p>
                     ) : (
                       <div className="divide-y divide-gray-50">
-                        {dayBookings.map(b => (
-                          <div key={b.id} className="px-4 py-3 flex items-start gap-3">
-                            <span className="text-[#2F6B6B] font-bold text-sm min-w-[40px]">{b.slots.time.slice(0, 5)}</span>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-semibold text-gray-800 text-sm">{b.client_name}</p>
-                              {b.treatment_name && (
-                                <p className="text-xs text-gray-500">{b.treatment_name} · {b.duration_minutes} דק&apos;</p>
-                              )}
-                              {(b.selected_location || b.slots?.location) && (
-                                <p className="text-xs text-gray-400 truncate">📍 {b.selected_location || displayLocation(b.slots.location)}</p>
-                              )}
+                        {dayBookings.map(b => {
+                          const isExp = expandedCalId === b.id;
+                          return (
+                            <div key={b.id}
+                              className="px-4 py-3 flex items-start gap-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                              onClick={() => setExpandedCalId(isExp ? null : b.id)}>
+                              <span className="text-[#2F6B6B] font-bold text-sm min-w-[40px]">{b.slots.time.slice(0, 5)}</span>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs text-gray-500 truncate">📍 {b.selected_location || displayLocation(b.slots.location)}</p>
+                                {isExp && (
+                                  <div className="mt-2 space-y-0.5">
+                                    <p className="font-semibold text-gray-800 text-sm">{b.client_name}</p>
+                                    <p className="text-xs text-gray-500" dir="ltr">{b.client_phone}</p>
+                                    {b.treatment_name && (
+                                      <p className="text-xs text-gray-500">💆 {b.treatment_name} · {b.duration_minutes} דק&apos;</p>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                              <span className="text-gray-300 text-xs mt-0.5">{isExp ? '▲' : '▼'}</span>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
                   </div>
