@@ -137,6 +137,23 @@
     "namePlaceholder": "שמך (אופציונלי)",
     "anonymous": "הביקורת נשלחת באופן אנונימי לחלוטין"
   },
+  "booking": {
+    "title": "קביעת תור",
+    "subtitle": "בחרו את הזמן המתאים לכם",
+    "namePlaceholder": "שמך המלא",
+    "phonePlaceholder": "מספר טלפון",
+    "submit": "שלח בקשה",
+    "submitting": "שולח...",
+    "noSlots": "אין שעות פנויות כרגע",
+    "loading": "טוען...",
+    "contactWhatsApp": "צור קשר בוואטסאפ",
+    "selectSlot": "בחרו שעה",
+    "yourDetails": "הפרטים שלך",
+    "successTitle": "הבקשה התקבלה!",
+    "successText": "לחץ על הכפתור למטה לשליחת הבקשה לישראל בוואטסאפ. הוא יאשר ויחזור אליך בהקדם.",
+    "sendWhatsApp": "שלח בקשה בוואטסאפ",
+    "minuteShort": "דק'"
+  },
   "footer": {
     "rights": "כל הזכויות שמורות",
     "backToTop": "חזרה לראש הדף",

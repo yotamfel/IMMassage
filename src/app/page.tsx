@@ -5,6 +5,7 @@ import Services from '@/components/sections/Services';
 import About from '@/components/sections/About';
 import Testimonials from '@/components/sections/Testimonials';
 import Pricing from '@/components/sections/Pricing';
+import Booking from '@/components/sections/Booking';
 import Contact from '@/components/sections/Contact';
 import ReviewForm from '@/components/sections/ReviewForm';
 import Footer from '@/components/sections/Footer';
@@ -20,6 +21,7 @@ export default function Home() {
       <Services />
       <Testimonials />
       <Pricing />
+      <Booking />
       <Contact />
       <ReviewForm />
       <Footer />
