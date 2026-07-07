@@ -116,7 +116,7 @@ export default function Pricing() {
 
               {/* Variants */}
               <div className="flex items-center gap-1.5 shrink-0">
-                <span className="text-primary-dark font-semibold text-xs bg-cream-dark rounded-full px-3 py-1.5 hidden sm:inline-block">
+                <span className="text-primary-dark font-semibold text-xs bg-cream-dark rounded-full px-2 py-1.5 sm:px-3">
                   {item.variants.map(v => v.duration).join(' / ')}
                 </span>
                 <span className="bg-primary text-white text-xs font-bold px-3 py-1.5 rounded-full text-center shadow-sm whitespace-nowrap">
