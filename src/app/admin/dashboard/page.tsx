@@ -2,33 +2,43 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
-// Types
 type Slot = { id: string; date: string; time: string; location: string; duration_minutes: number; is_booked: boolean };
 type Booking = { id: string; client_name: string; client_phone: string; status: string; review_sent: boolean; questionnaire_sent: boolean; final_confirmation_sent: boolean; created_at: string; slots: Slot; selected_location?: string; treatment_name?: string; duration_minutes?: number };
 
-const LOCATIONS = ['בן בבא 1, ירושלים', 'חיים ברודי 15, ירושלים', 'ביקור בבית הלקוח'];
+const ALL_LOCATIONS = ['בן בבא 1, ירושלים', 'חיים ברודי 15, ירושלים', 'ביקור בבית הלקוח'];
+const HOURS = Array.from({ length: 13 }, (_, i) => i + 8); // 8–20
 
-function displayLocation(locationStr: string): string {
-  try {
-    const locs = JSON.parse(locationStr);
-    return Array.isArray(locs) ? locs.join(' / ') : locationStr;
-  } catch { return locationStr; }
+function displayLocation(s: string): string {
+  try { const p = JSON.parse(s); return Array.isArray(p) ? p.join(' / ') : s; } catch { return s; }
 }
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('he-IL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+function formatDate(d: string) {
+  return new Date(d).toLocaleDateString('he-IL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 function formatPhone(phone: string): string {
-  const cleaned = phone.replace(/[^0-9]/g, '');
-  if (cleaned.startsWith('972')) return cleaned;
-  if (cleaned.startsWith('0')) return '972' + cleaned.slice(1);
-  return '972' + cleaned;
+  const c = phone.replace(/[^0-9]/g, '');
+  if (c.startsWith('972')) return c;
+  if (c.startsWith('0')) return '972' + c.slice(1);
+  return '972' + c;
 }
 
 function questionnaireLink(b: Booking): string {
-  const formUrl = process.env.NEXT_PUBLIC_MEDICAL_FORM_URL || '';
-  const msg = `שלום ${b.client_name}! תודה על פנייתך 🙏\nכדי שנוכל לאשר את התור, אנא מלא שאלון רפואי קצר:\n${formUrl}\nלאחר מילוי השאלון נחזור אליך לאישור הסופי.`;
+  const url = process.env.NEXT_PUBLIC_MEDICAL_FORM_URL || '';
+  const msg = `שלום ${b.client_name}! תודה על פנייתך 🙏\nכדי שנוכל לאשר את התור, אנא מלא שאלון רפואי קצר:\n${url}\nלאחר מילוי השאלון נחזור אליך לאישור הסופי.`;
+  return `https://wa.me/${formatPhone(b.client_phone)}?text=${encodeURIComponent(msg)}`;
+}
+
+function finalConfirmationLink(b: Booking): string {
+  const location = b.selected_location || displayLocation(b.slots?.location || '');
+  const duration = b.duration_minutes || b.slots?.duration_minutes || 60;
+  const treatment = b.treatment_name ? `\n💆 ${b.treatment_name}` : '';
+  const msg = `שלום ${b.client_name}! התור שלך אושר סופית ✅\n📅 ${formatDate(b.slots.date)} בשעה ${b.slots.time.slice(0,5)}\n📍 ${location}${treatment}\n⏱️ ${duration} דקות\nמצפה לראותך!\n\nשים לב ❤️, ניתן לבטל תור עד 24 שעות לפני. תור שיבוטל בסמוך יחויב מחיר מלא.`;
+  return `https://wa.me/${formatPhone(b.client_phone)}?text=${encodeURIComponent(msg)}`;
+}
+
+function rejectionLink(b: Booking): string {
+  const msg = `שלום ${b.client_name}, מצטערים - הזמן הזה כבר לא פנוי.\nלקביעת תור חדש: https://shahrur-bamaga.vercel.app/#booking`;
   return `https://wa.me/${formatPhone(b.client_phone)}?text=${encodeURIComponent(msg)}`;
 }
 
@@ -44,51 +54,31 @@ function isAppointmentOver(b: Booking): boolean {
   return new Date() >= end;
 }
 
-function finalConfirmationLink(b: Booking): string {
-  const location = b.selected_location || b.slots?.location || '';
-  const duration = b.duration_minutes || b.slots?.duration_minutes || 60;
-  const treatment = b.treatment_name ? `\n💆 ${b.treatment_name}` : '';
-  const msg = `שלום ${b.client_name}! התור שלך אושר סופית ✅\n📅 ${formatDate(b.slots.date)} בשעה ${b.slots.time.slice(0,5)}\n📍 ${location}${treatment}\n⏱️ ${duration} דקות\nמצפה לראותך!\n\nשים לב ❤️, ניתן לבטל תור עד 24 שעות לפני. תור שיבוטל בסמוך יחויב מחיר מלא.`;
-  return `https://wa.me/${formatPhone(b.client_phone)}?text=${encodeURIComponent(msg)}`;
-}
-
-function rejectionLink(b: Booking): string {
-  const msg = `שלום ${b.client_name}, מצטערים – הזמן הזה כבר לא פנוי.\nלקביעת תור חדש: https://shichrur-bemaga.vercel.app/#booking`;
-  return `https://wa.me/${formatPhone(b.client_phone)}?text=${encodeURIComponent(msg)}`;
-}
-
+function todayStr() { return new Date().toISOString().split('T')[0]; }
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const [tab, setTab] = useState<'slots' | 'bookings' | 'reviews' | 'calendar'>('bookings');
-  const [calWeekStart, setCalWeekStart] = useState<Date>(() => {
-    const d = new Date();
-    d.setDate(d.getDate() - d.getDay()); // back to Sunday
-    d.setHours(0, 0, 0, 0);
-    return d;
-  });
+  const [tab, setTab] = useState<'bookings' | 'reviews' | 'calendar'>('bookings');
   const [slots, setSlots] = useState<Slot[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedCalId, setExpandedCalId] = useState<string | null>(null);
 
-  // Add slot form
-  const [newDate, setNewDate] = useState('');
-  const [newTime, setNewTime] = useState('');
-  const [newLocations, setNewLocations] = useState<string[]>([]);
-  const [addingSlot, setAddingSlot] = useState(false);
-
-  const toggleLocation = (loc: string) =>
-    setNewLocations(prev => prev.includes(loc) ? prev.filter(l => l !== loc) : [...prev, loc]);
+  // Calendar navigation
+  const [calWeekStart, setCalWeekStart] = useState<Date>(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - d.getDay());
+    d.setHours(0, 0, 0, 0);
+    return d;
+  });
+  const [calSelectedDay, setCalSelectedDay] = useState<string>(todayStr());
 
   const fetchData = useCallback(async () => {
     const [slotsRes, bookingsRes] = await Promise.all([
       fetch('/api/admin/slots'),
       fetch('/api/admin/bookings'),
     ]);
-    if (slotsRes.status === 401 || bookingsRes.status === 401) {
-      router.push('/admin');
-      return;
-    }
+    if (slotsRes.status === 401 || bookingsRes.status === 401) { router.push('/admin'); return; }
     setSlots(await slotsRes.json());
     setBookings(await bookingsRes.json());
     setLoading(false);
@@ -96,22 +86,22 @@ export default function AdminDashboard() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const logout = async () => {
-    await fetch('/api/admin/auth', { method: 'DELETE' });
-    router.push('/admin');
-  };
+  const logout = async () => { await fetch('/api/admin/auth', { method: 'DELETE' }); router.push('/admin'); };
 
-  const addSlot = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newLocations.length === 0) return;
-    setAddingSlot(true);
+  // Slot management
+  const addSlotFromCalendar = async (date: string, hour: number) => {
+    const time = `${hour.toString().padStart(2, '0')}:00`;
     await fetch('/api/slots', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ date: newDate, time: newTime, location: JSON.stringify(newLocations), duration_minutes: 60 }),
+      body: JSON.stringify({ date, time, location: JSON.stringify(ALL_LOCATIONS), duration_minutes: 60 }),
     });
-    setNewDate(''); setNewTime(''); setNewLocations([]);
-    setAddingSlot(false);
+    fetchData();
+  };
+
+  const removeCalendarSlot = async (id: string) => {
+    if (!window.confirm('להסיר את השעה הזו מהאתר?')) return;
+    await fetch(`/api/slots/${id}`, { method: 'DELETE' });
     fetchData();
   };
 
@@ -120,43 +110,17 @@ export default function AdminDashboard() {
     fetchData();
   };
 
-  const deleteSlot = async (id: string) => {
-    await fetch(`/api/slots/${id}`, { method: 'DELETE' });
-    fetchData();
-  };
-
-  const confirmBooking = async (id: string) => {
-    await fetch(`/api/admin/bookings/${id}/confirm`, { method: 'POST' });
-    fetchData();
-  };
-
-  const rejectBooking = async (id: string) => {
-    await fetch(`/api/admin/bookings/${id}/reject`, { method: 'POST' });
-    fetchData();
-  };
-
-  const markReviewSent = async (id: string) => {
-    await fetch(`/api/admin/bookings/${id}/review-sent`, { method: 'POST' });
-    fetchData();
-  };
-
-  const markQuestionnaireSent = async (id: string) => {
-    await fetch(`/api/admin/bookings/${id}/questionnaire-sent`, { method: 'POST' });
-    fetchData();
-  };
-
-  const markFinalSent = async (id: string) => {
-    await fetch(`/api/admin/bookings/${id}/final-sent`, { method: 'POST' });
-    fetchData();
-  };
-
+  // Booking management
+  const confirmBooking = async (id: string) => { await fetch(`/api/admin/bookings/${id}/confirm`, { method: 'POST' }); fetchData(); };
+  const rejectBooking = async (id: string) => { await fetch(`/api/admin/bookings/${id}/reject`, { method: 'POST' }); fetchData(); };
+  const markReviewSent = async (id: string) => { await fetch(`/api/admin/bookings/${id}/review-sent`, { method: 'POST' }); fetchData(); };
+  const markQuestionnaireSent = async (id: string) => { await fetch(`/api/admin/bookings/${id}/questionnaire-sent`, { method: 'POST' }); fetchData(); };
+  const markFinalSent = async (id: string) => { await fetch(`/api/admin/bookings/${id}/final-sent`, { method: 'POST' }); fetchData(); };
   const deleteBooking = async (id: string, name: string) => {
     if (!window.confirm(`למחוק את הבקשה של ${name}?`)) return;
     await fetch(`/api/admin/bookings/${id}`, { method: 'DELETE' });
     fetchData();
   };
-
-  const [expandedCalId, setExpandedCalId] = useState<string | null>(null);
 
   const pending = bookings.filter(b => b.status === 'pending');
   const confirmed = bookings.filter(b => b.status === 'confirmed');
@@ -166,6 +130,35 @@ export default function AdminDashboard() {
     `px-4 py-2 text-sm font-medium rounded-full transition-colors ${tab === t ? 'bg-[#2F6B6B] text-white' : 'text-[#2F6B6B] hover:bg-[#2F6B6B]/10'}`;
 
   if (loading) return <div className="min-h-screen bg-[#f5f0eb] flex items-center justify-center" dir="rtl"><p className="text-[#2F6B6B]">טוען...</p></div>;
+
+  // ── Calendar helpers ──
+  const weekDays = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(calWeekStart);
+    d.setDate(calWeekStart.getDate() + i);
+    return d;
+  });
+
+  const navWeek = (dir: -1 | 1) => {
+    setCalWeekStart(d => { const n = new Date(d); n.setDate(d.getDate() + dir * 7); return n; });
+    setCalSelectedDay(prev => {
+      const d = new Date(prev);
+      d.setDate(d.getDate() + dir * 7);
+      return d.toISOString().split('T')[0];
+    });
+  };
+
+  const fmtWeekRange = () => {
+    const s = calWeekStart.toLocaleDateString('he-IL', { day: 'numeric', month: 'long' });
+    const e = weekDays[6].toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
+    return `${s} - ${e}`;
+  };
+
+  const daySlots = slots.filter(s => s.date === calSelectedDay);
+  const bookingBySlotId: Record<string, Booking> = Object.fromEntries(
+    bookings.filter(b => b.slots?.id).map(b => [b.slots.id, b])
+  );
+  const nowHour = new Date().getHours();
+  const isSelectedToday = calSelectedDay === todayStr();
 
   return (
     <div className="min-h-screen bg-[#f5f0eb]" dir="rtl">
@@ -181,14 +174,13 @@ export default function AdminDashboard() {
           <button className={tabClass('bookings')} onClick={() => setTab('bookings')}>
             בקשות תור {pending.length > 0 && <span className="mr-1 bg-red-500 text-white text-xs rounded-full px-1.5">{pending.length}</span>}
           </button>
-          <button className={tabClass('slots')} onClick={() => setTab('slots')}>שעות זמינות</button>
           <button className={tabClass('reviews')} onClick={() => setTab('reviews')}>
             ביקורות {reviewDue.length > 0 && <span className="mr-1 bg-amber-500 text-white text-xs rounded-full px-1.5">{reviewDue.length}</span>}
           </button>
           <button className={tabClass('calendar')} onClick={() => setTab('calendar')}>יומן</button>
         </div>
 
-        {/* BOOKINGS TAB */}
+        {/* ── BOOKINGS TAB ── */}
         {tab === 'bookings' && (
           <div className="space-y-4">
             {pending.length === 0 && <div className="bg-white rounded-2xl p-6 text-center text-gray-400 shadow-sm">אין בקשות ממתינות</div>}
@@ -215,7 +207,6 @@ export default function AdminDashboard() {
               </div>
             ))}
 
-            {/* Confirmed bookings */}
             {confirmed.length > 0 && (
               <div>
                 <h3 className="text-sm font-medium text-gray-500 mb-2 px-1">אושרו</h3>
@@ -236,7 +227,6 @@ export default function AdminDashboard() {
                         </button>
                       </div>
                     </div>
-                    {/* Status badges */}
                     <div className="flex gap-2 mb-2 flex-wrap">
                       <span className={`text-xs px-2 py-1 rounded-full font-medium ${b.questionnaire_sent ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-400'}`}>
                         {b.questionnaire_sent ? '✓ שאלון נשלח' : '○ שאלון'}
@@ -263,9 +253,8 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {/* Recently rejected - show rejection WhatsApp */}
             {bookings.filter(b => b.status === 'rejected').map(b => {
-              const isRecent = new Date().getTime() - new Date(b.created_at).getTime() < 24 * 60 * 60 * 1000;
+              const isRecent = Date.now() - new Date(b.created_at).getTime() < 24 * 60 * 60 * 1000;
               if (!isRecent) return null;
               return (
                 <div key={b.id} className="bg-white rounded-2xl p-4 shadow-sm border-r-4 border-red-400 mb-3">
@@ -283,178 +272,18 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* SLOTS TAB */}
-        {tab === 'slots' && (
-          <div className="space-y-4">
-            {/* Add slot form */}
-            <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h3 className="font-bold text-[#2F6B6B] mb-4">הוסף שעה חדשה</h3>
-              <form onSubmit={addSlot} className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs text-gray-500 mb-1 block">תאריך</label>
-                    <input type="date" value={newDate} onChange={e => setNewDate(e.target.value)} required
-                      min={new Date().toISOString().split('T')[0]}
-                      className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6B6B]/30" />
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-500 mb-1 block">שעה</label>
-                    <input type="time" value={newTime} onChange={e => setNewTime(e.target.value)} required
-                      className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6B6B]/30" />
-                  </div>
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 mb-2 block">מיקום (ניתן לסמן יותר מאחד)</label>
-                  <div className="space-y-2">
-                    {LOCATIONS.map(loc => (
-                      <label key={loc} className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-colors text-sm ${newLocations.includes(loc) ? 'border-[#2F6B6B] bg-[#2F6B6B]/5' : 'border-gray-200'}`}>
-                        <input type="checkbox" checked={newLocations.includes(loc)} onChange={() => toggleLocation(loc)} className="w-4 h-4 accent-[#2F6B6B]" />
-                        {loc}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <button type="submit" disabled={addingSlot}
-                  className="w-full bg-[#2F6B6B] text-white py-3 rounded-xl font-semibold hover:bg-[#1F4A4A] transition-colors disabled:opacity-50">
-                  {addingSlot ? 'מוסיף...' : '+ הוסף שעה'}
-                </button>
-              </form>
-            </div>
-
-            {/* Slots list */}
-            <div className="space-y-2">
-              {slots.length === 0 && <div className="bg-white rounded-2xl p-6 text-center text-gray-400 shadow-sm">אין שעות זמינות</div>}
-              {slots.map(s => (
-                <div key={s.id} className={`bg-white rounded-2xl px-4 py-3 shadow-sm flex items-center justify-between ${s.is_booked ? 'opacity-60' : ''}`}>
-                  <div>
-                    <p className="font-semibold text-[#2F6B6B] text-sm">{formatDate(s.date)} · {s.time.slice(0,5)}</p>
-                    <p className="text-gray-500 text-xs">📍 {displayLocation(s.location)} · {s.duration_minutes} דק&apos;</p>
-                    {s.is_booked && <span className="text-xs text-amber-600 font-medium">תפוס</span>}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {s.is_booked && (
-                      <button onClick={() => releaseSlot(s.id)} className="text-xs text-amber-600 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg transition-colors font-medium">
-                        שחרר
-                      </button>
-                    )}
-                    {!s.is_booked && (
-                      <button onClick={() => deleteSlot(s.id)} className="text-red-400 hover:text-red-600 transition-colors p-2">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* CALENDAR TAB */}
-        {tab === 'calendar' && (() => {
-          const weekDays = Array.from({ length: 7 }, (_, i) => {
-            const d = new Date(calWeekStart);
-            d.setDate(calWeekStart.getDate() + i);
-            return d;
-          });
-          const weekEnd = weekDays[6];
-          const todayStr = new Date().toISOString().split('T')[0];
-
-          const calBookings = bookings.filter(b => b.final_confirmation_sent);
-          const byDate: Record<string, Booking[]> = {};
-          calBookings.forEach(b => {
-            if (b.slots?.date) {
-              byDate[b.slots.date] = byDate[b.slots.date] || [];
-              byDate[b.slots.date].push(b);
-            }
-          });
-
-          const fmtRange = () => {
-            const opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
-            const s = calWeekStart.toLocaleDateString('he-IL', opts);
-            const e = weekEnd.toLocaleDateString('he-IL', { ...opts, year: 'numeric' });
-            return `${s} - ${e}`;
-          };
-
-          return (
-            <div className="space-y-3">
-              {/* Week nav */}
-              <div className="bg-white rounded-2xl px-4 py-3 shadow-sm flex items-center justify-between">
-                <button onClick={() => setCalWeekStart(d => { const p = new Date(d); p.setDate(d.getDate() - 7); return p; })}
-                  className="text-[#2F6B6B] hover:text-[#1F4A4A] p-1 rounded-lg hover:bg-[#2F6B6B]/10 transition-colors text-lg">→</button>
-                <p className="text-sm font-semibold text-[#2F6B6B] text-center">{fmtRange()}</p>
-                <button onClick={() => setCalWeekStart(d => { const n = new Date(d); n.setDate(d.getDate() + 7); return n; })}
-                  className="text-[#2F6B6B] hover:text-[#1F4A4A] p-1 rounded-lg hover:bg-[#2F6B6B]/10 transition-colors text-lg">←</button>
-              </div>
-
-              {/* Days */}
-              {weekDays.map(day => {
-                const dateStr = day.toISOString().split('T')[0];
-                const dayBookings = (byDate[dateStr] || []).sort((a, b) => a.slots.time.localeCompare(b.slots.time));
-                const isToday = dateStr === todayStr;
-                const weekdayName = day.toLocaleDateString('he-IL', { weekday: 'long' });
-                const dayNum = day.toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric' });
-
-                return (
-                  <div key={dateStr} className={`bg-white rounded-2xl overflow-hidden shadow-sm ${dayBookings.length === 0 ? 'opacity-50' : ''}`}>
-                    <div className={`px-4 py-2.5 flex items-center gap-2 ${isToday ? 'bg-[#2F6B6B] text-white' : 'border-b border-gray-100'}`}>
-                      <span className={`font-semibold text-sm ${isToday ? 'text-white' : 'text-[#2F6B6B]'}`}>{weekdayName}</span>
-                      <span className={`text-xs ${isToday ? 'text-white/80' : 'text-gray-400'}`}>{dayNum}</span>
-                      {isToday && <span className="mr-auto text-xs bg-white/20 px-2 py-0.5 rounded-full">היום</span>}
-                    </div>
-                    {dayBookings.length === 0 ? (
-                      <p className="text-gray-300 text-xs px-4 py-2">אין תורים</p>
-                    ) : (
-                      <div className="divide-y divide-gray-50">
-                        {dayBookings.map(b => {
-                          const isExp = expandedCalId === b.id;
-                          return (
-                            <div key={b.id}
-                              className="px-4 py-3 flex items-start gap-3 cursor-pointer hover:bg-gray-50 transition-colors"
-                              onClick={() => setExpandedCalId(isExp ? null : b.id)}>
-                              <span className="text-[#2F6B6B] font-bold text-sm min-w-[40px]">{b.slots.time.slice(0, 5)}</span>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-xs text-gray-500 truncate">📍 {b.selected_location || displayLocation(b.slots.location)}</p>
-                                {isExp && (
-                                  <div className="mt-2 space-y-0.5">
-                                    <p className="font-semibold text-gray-800 text-sm">{b.client_name}</p>
-                                    <p className="text-xs text-gray-500" dir="ltr">{b.client_phone}</p>
-                                    {b.treatment_name && (
-                                      <p className="text-xs text-gray-500">💆 {b.treatment_name} · {b.duration_minutes} דק&apos;</p>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                              <span className="text-gray-300 text-xs mt-0.5">{isExp ? '▲' : '▼'}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })()}
-
-        {/* REVIEWS TAB */}
+        {/* ── REVIEWS TAB ── */}
         {tab === 'reviews' && (
           <div className="space-y-3">
             {reviewDue.length === 0 && (
-              <div className="bg-white rounded-2xl p-6 text-center text-gray-400 shadow-sm">
-                אין טיפולים שהסתיימו כרגע
-              </div>
+              <div className="bg-white rounded-2xl p-6 text-center text-gray-400 shadow-sm">אין טיפולים שהסתיימו כרגע</div>
             )}
             {reviewDue.map(b => (
               <div key={b.id} className="bg-white rounded-2xl p-5 shadow-sm">
                 <div className="mb-3">
                   <p className="font-bold text-[#2F6B6B]">{b.client_name}</p>
                   {b.slots && (
-                    <p className="text-sm text-gray-500">
-                      📅 {formatDate(b.slots.date)} {b.slots.time.slice(0,5)} · 📍 {b.selected_location || displayLocation(b.slots.location)}
-                    </p>
+                    <p className="text-sm text-gray-500">📅 {formatDate(b.slots.date)} {b.slots.time.slice(0,5)} · 📍 {b.selected_location || displayLocation(b.slots.location)}</p>
                   )}
                 </div>
                 <div className="flex gap-2">
@@ -471,6 +300,131 @@ export default function AdminDashboard() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* ── CALENDAR TAB ── */}
+        {tab === 'calendar' && (
+          <div className="space-y-3">
+            {/* Week nav */}
+            <div className="bg-white rounded-2xl px-4 py-3 shadow-sm flex items-center justify-between">
+              <button onClick={() => navWeek(-1)} className="text-[#2F6B6B] hover:bg-[#2F6B6B]/10 p-2 rounded-lg transition-colors text-lg">→</button>
+              <p className="text-sm font-semibold text-[#2F6B6B]">{fmtWeekRange()}</p>
+              <button onClick={() => navWeek(1)} className="text-[#2F6B6B] hover:bg-[#2F6B6B]/10 p-2 rounded-lg transition-colors text-lg">←</button>
+            </div>
+
+            {/* Day tabs */}
+            <div className="flex gap-1.5 overflow-x-auto pb-1">
+              {weekDays.map(day => {
+                const ds = day.toISOString().split('T')[0];
+                const isSel = calSelectedDay === ds;
+                const isT = ds === todayStr();
+                return (
+                  <button key={ds} onClick={() => setCalSelectedDay(ds)}
+                    className={`flex-shrink-0 flex flex-col items-center px-3 py-2 rounded-xl min-w-[50px] transition-colors ${isSel ? 'bg-[#2F6B6B] text-white' : isT ? 'bg-[#2F6B6B]/10 text-[#2F6B6B]' : 'bg-white text-gray-500 shadow-sm'}`}>
+                    <span className="text-xs">{day.toLocaleDateString('he-IL', { weekday: 'short' })}</span>
+                    <span className="text-lg font-bold leading-tight">{day.getDate()}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Hourly grid */}
+            <div className="bg-white rounded-2xl overflow-hidden shadow-sm divide-y divide-gray-50">
+              {HOURS.map(hour => {
+                const timeStr = `${hour.toString().padStart(2, '0')}:00`;
+                const slot = daySlots.find(s => s.time.startsWith(timeStr.slice(0, 5)));
+                const booking = slot ? bookingBySlotId[slot.id] : undefined;
+                const isPast = isSelectedToday && hour < nowHour;
+
+                // No slot — empty row
+                if (!slot) {
+                  return (
+                    <div key={hour} className={`flex items-center px-4 py-3 gap-3 ${isPast ? 'opacity-30' : ''}`}>
+                      <span className="text-sm text-gray-400 w-12 flex-shrink-0">{timeStr}</span>
+                      {!isPast && (
+                        <button onClick={() => addSlotFromCalendar(calSelectedDay, hour)}
+                          className="text-xs text-[#2F6B6B]/70 hover:text-[#2F6B6B] px-3 py-1.5 rounded-lg border border-dashed border-[#2F6B6B]/25 hover:border-[#2F6B6B]/60 transition-colors">
+                          + פתח לקביעה
+                        </button>
+                      )}
+                    </div>
+                  );
+                }
+
+                // Available, not booked
+                if (!slot.is_booked) {
+                  return (
+                    <div key={hour} className={`flex items-center px-4 py-3 gap-3 bg-[#f0f9f6] ${isPast ? 'opacity-50' : ''}`}>
+                      <span className="text-sm font-semibold text-[#2F6B6B] w-12 flex-shrink-0">{timeStr}</span>
+                      <span className="text-sm text-[#2F6B6B] flex-1">פנוי לקביעה</span>
+                      <button onClick={() => removeCalendarSlot(slot.id)}
+                        className="text-gray-300 hover:text-red-400 transition-colors text-xl leading-none px-1">×</button>
+                    </div>
+                  );
+                }
+
+                // Booked
+                if (!booking) {
+                  return (
+                    <div key={hour} className="flex items-center px-4 py-3 gap-3 bg-gray-50 opacity-60">
+                      <span className="text-sm text-gray-500 w-12 flex-shrink-0">{timeStr}</span>
+                      <span className="text-xs text-gray-400 flex-1">תפוס</span>
+                      <button onClick={() => releaseSlot(slot.id)} className="text-xs text-gray-400 hover:text-amber-600 transition-colors">שחרר</button>
+                    </div>
+                  );
+                }
+
+                if (booking.status === 'pending') {
+                  return (
+                    <div key={hour} className="flex items-start px-4 py-3 gap-3 bg-amber-50">
+                      <span className="text-sm font-semibold text-amber-700 w-12 flex-shrink-0 pt-0.5">{timeStr}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-amber-800">{booking.client_name}</p>
+                        <p className="text-xs text-amber-600">ממתין לאישור</p>
+                      </div>
+                      <button onClick={() => releaseSlot(slot.id)}
+                        className="text-xs text-amber-600 hover:text-amber-800 bg-amber-100 hover:bg-amber-200 px-2 py-1 rounded-lg transition-colors flex-shrink-0">
+                        שחרר
+                      </button>
+                    </div>
+                  );
+                }
+
+                // Confirmed booking
+                const isFinal = booking.final_confirmation_sent;
+                return (
+                  <div key={hour}
+                    className={`flex items-start px-4 py-3 gap-3 cursor-pointer transition-colors ${isFinal ? 'bg-green-50 hover:bg-green-100/60' : 'bg-blue-50 hover:bg-blue-100/60'}`}
+                    onClick={() => setExpandedCalId(expandedCalId === booking.id ? null : booking.id)}>
+                    <span className={`text-sm font-semibold w-12 flex-shrink-0 pt-0.5 ${isFinal ? 'text-green-700' : 'text-blue-700'}`}>{timeStr}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-semibold ${isFinal ? 'text-green-800' : 'text-blue-800'}`}>{booking.client_name}</p>
+                      {expandedCalId === booking.id ? (
+                        <div className="mt-1 space-y-0.5">
+                          <p className="text-xs text-gray-500" dir="ltr">{booking.client_phone}</p>
+                          {booking.treatment_name && <p className={`text-xs ${isFinal ? 'text-green-600' : 'text-blue-600'}`}>💆 {booking.treatment_name} · {booking.duration_minutes} דק&apos;</p>}
+                          <p className={`text-xs ${isFinal ? 'text-green-500' : 'text-blue-500'}`}>📍 {booking.selected_location || displayLocation(slot.location)}</p>
+                        </div>
+                      ) : (
+                        <p className={`text-xs ${isFinal ? 'text-green-600' : 'text-blue-500'}`}>
+                          {isFinal ? (booking.treatment_name || 'אושר סופית') : 'ממתין לאישור סופי'}
+                        </p>
+                      )}
+                    </div>
+                    <span className={`text-xs flex-shrink-0 mt-0.5 ${isFinal ? 'text-green-400' : 'text-blue-300'}`}>{expandedCalId === booking.id ? '▲' : '▼'}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Legend */}
+            <div className="flex flex-wrap gap-3 px-1 text-xs text-gray-400">
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-[#2F6B6B]/15 inline-block" />פנוי לקביעה</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-amber-200 inline-block" />ממתין</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-blue-200 inline-block" />אושר</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-green-200 inline-block" />אישור סופי נשלח</span>
+            </div>
           </div>
         )}
 
