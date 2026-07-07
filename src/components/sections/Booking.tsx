@@ -3,6 +3,15 @@ import { useState, useEffect } from 'react';
 import { useLang } from '@/lib/i18n/LangContext';
 
 type Slot = { id: string; date: string; time: string; location: string; duration_minutes: number };
+type Treatment = { id: string; he: string; en: string; durations: number[] };
+
+const TREATMENTS: Treatment[] = [
+  { id: 'swedish',    he: 'עיסוי שוודי',       en: 'Swedish Massage',    durations: [45, 60] },
+  { id: 'medical',    he: 'עיסוי רפואי',        en: 'Medical Massage',    durations: [45, 60] },
+  { id: 'cupping',    he: 'כוסות רוח',          en: 'Cupping Therapy',    durations: [50] },
+  { id: 'hot-stones', he: 'אבנים חמות',         en: 'Hot Stone Massage',  durations: [50] },
+  { id: 'face-neck',  he: 'עיסוי פנים וצוואר', en: 'Face & Neck Massage', durations: [30] },
+];
 
 const ISRAEL_PHONE = '972508838374';
 
@@ -28,10 +37,11 @@ function formatDateLong(dateStr: string, lang: string) {
 
 function formatDateTab(dateStr: string, lang: string) {
   const d = new Date(dateStr);
-  const weekday = d.toLocaleDateString(lang === 'he' ? 'he-IL' : 'en-IL', { weekday: 'short' });
-  const day = d.getDate();
-  const month = d.toLocaleDateString(lang === 'he' ? 'he-IL' : 'en-IL', { month: 'short' });
-  return { weekday, day, month };
+  return {
+    weekday: d.toLocaleDateString(lang === 'he' ? 'he-IL' : 'en-IL', { weekday: 'short' }),
+    day: d.getDate(),
+    month: d.toLocaleDateString(lang === 'he' ? 'he-IL' : 'en-IL', { month: 'short' }),
+  };
 }
 
 export default function Booking() {
@@ -42,6 +52,8 @@ export default function Booking() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [selectedLocation, setSelectedLocation] = useState('');
+  const [selectedTreatment, setSelectedTreatment] = useState<Treatment | null>(null);
+  const [selectedDuration, setSelectedDuration] = useState<number | null>(null);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [step, setStep] = useState<'select' | 'details' | 'success'>('select');
@@ -66,19 +78,35 @@ export default function Booking() {
     setSelectedSlot(slot);
     const locs = parseLocations(slot.location);
     setSelectedLocation(locs.length === 1 ? locs[0] : '');
+    setSelectedTreatment(null);
+    setSelectedDuration(null);
     setStep('details');
     setTimeout(() => document.getElementById('booking-form')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
   };
 
+  const handleSelectTreatment = (t: Treatment) => {
+    setSelectedTreatment(t);
+    setSelectedDuration(t.durations.length === 1 ? t.durations[0] : null);
+  };
+
+  const canSubmit = !!selectedLocation && !!selectedTreatment && !!selectedDuration && name && phone;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedSlot || !selectedLocation) return;
+    if (!selectedSlot || !selectedTreatment || !selectedDuration) return;
     setSubmitting(true);
 
     const res = await fetch('/api/bookings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slot_id: selectedSlot.id, client_name: name, client_phone: formatPhone(phone), selected_location: selectedLocation }),
+      body: JSON.stringify({
+        slot_id: selectedSlot.id,
+        client_name: name,
+        client_phone: formatPhone(phone),
+        selected_location: selectedLocation,
+        treatment_name: isHe ? selectedTreatment.he : selectedTreatment.en,
+        duration_minutes: selectedDuration,
+      }),
     });
 
     if (res.ok) {
@@ -88,7 +116,6 @@ export default function Booking() {
       const err = await res.json().catch(() => ({}));
       if (err.error === 'Slot not available') {
         alert(isHe ? 'מצטערים, השעה הזו כבר לא פנויה' : 'Sorry, this slot is no longer available');
-
         setSlots(prev => prev.filter(s => s.id !== selectedSlot.id));
         setStep('select');
         setSelectedSlot(null);
@@ -123,7 +150,7 @@ export default function Booking() {
             {!loadingSlots && slots.length === 0 && (
               <div className="text-center py-10">
                 <p className="text-gray-500 mb-4">{t.booking.noSlots}</p>
-                <a href={`https://wa.me/${ISRAEL_PHONE}?text=${encodeURIComponent(lang === 'he' ? 'היי, אשמח לקבוע תור לעיסוי' : "Hi, I'd like to book a massage")}`}
+                <a href={`https://wa.me/${ISRAEL_PHONE}?text=${encodeURIComponent(isHe ? 'היי, אשמח לקבוע תור לעיסוי' : "Hi, I'd like to book a massage")}`}
                   target="_blank" rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 bg-[#25D366] text-white px-5 py-2.5 rounded-full text-sm font-semibold">
                   {t.booking.contactWhatsApp}
@@ -162,9 +189,6 @@ export default function Booking() {
                             isSelected ? 'border-primary bg-primary text-white' : 'border-primary/20 bg-white hover:border-primary/60 text-primary-dark'
                           }`}>
                           <span className="font-bold text-base">{slot.time.slice(0, 5)}</span>
-                          <span className={`text-xs mt-0.5 ${isSelected ? 'text-white/80' : 'text-gray-400'}`}>
-                            {slot.duration_minutes} {t.booking.minuteShort}
-                          </span>
                         </button>
                       );
                     })}
@@ -175,28 +199,26 @@ export default function Booking() {
                 {step === 'details' && selectedSlot && (() => {
                   const locations = parseLocations(selectedSlot.location);
                   return (
-                    <div id="booking-form" className="border-t border-primary/10 bg-primary/3 p-4">
-                      <div className="flex items-center justify-between mb-3">
+                    <div id="booking-form" className="border-t border-primary/10 bg-primary/3 p-4 space-y-4">
+                      {/* Header */}
+                      <div className="flex items-center justify-between">
                         <p className="text-sm font-semibold text-primary-dark">
-                          📅 {formatDateLong(selectedSlot.date, lang)}, {selectedSlot.time.slice(0, 5)} · ⏱️ {selectedSlot.duration_minutes} {t.booking.minuteShort}
+                          📅 {formatDateLong(selectedSlot.date, lang)}, {selectedSlot.time.slice(0, 5)}
                         </p>
                         <button onClick={() => { setStep('select'); setSelectedSlot(null); }}
                           className="text-gray-400 hover:text-gray-600 text-lg leading-none">✕</button>
                       </div>
 
-                      {/* Location selector - only shown when multiple options */}
+                      {/* Location selector */}
                       {locations.length > 1 && (
-                        <div className="mb-3">
-                          <p className="text-xs text-gray-500 mb-2">{lang === 'he' ? 'בחר מיקום' : 'Choose location'}</p>
+                        <div>
+                          <p className="text-xs text-gray-500 mb-2">{isHe ? 'בחר מיקום' : 'Choose location'}</p>
                           <div className="flex flex-col gap-1.5">
                             {locations.map(loc => (
                               <label key={loc} className={`flex items-center gap-2.5 cursor-pointer p-2.5 rounded-xl border-2 text-sm transition-colors ${
-                                selectedLocation === loc ? 'border-primary bg-primary/5 text-primary-dark font-medium' : 'border-gray-200 text-gray-600'
+                                selectedLocation === loc ? 'border-primary bg-primary/5 font-medium' : 'border-gray-200 text-gray-600'
                               }`}>
-                                <input type="radio" name="location" value={loc}
-                                  checked={selectedLocation === loc}
-                                  onChange={() => setSelectedLocation(loc)}
-                                  className="sr-only" />
+                                <input type="radio" name="location" value={loc} checked={selectedLocation === loc} onChange={() => setSelectedLocation(loc)} className="sr-only" />
                                 <span className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${selectedLocation === loc ? 'border-primary' : 'border-gray-300'}`}>
                                   {selectedLocation === loc && <span className="w-2 h-2 rounded-full bg-primary block" />}
                                 </span>
@@ -206,11 +228,44 @@ export default function Booking() {
                           </div>
                         </div>
                       )}
+                      {locations.length === 1 && <p className="text-xs text-gray-500">📍 {selectedLocation}</p>}
 
-                      {locations.length === 1 && (
-                        <p className="text-xs text-gray-500 mb-3">📍 {selectedLocation}</p>
+                      {/* Treatment selector */}
+                      <div>
+                        <p className="text-xs text-gray-500 mb-2">{isHe ? 'בחר טיפול' : 'Choose treatment'}</p>
+                        <div className="flex flex-col gap-1.5">
+                          {TREATMENTS.map(tr => (
+                            <label key={tr.id} className={`flex items-center gap-2.5 cursor-pointer p-2.5 rounded-xl border-2 text-sm transition-colors ${
+                              selectedTreatment?.id === tr.id ? 'border-primary bg-primary/5 font-medium' : 'border-gray-200 text-gray-600'
+                            }`}>
+                              <input type="radio" name="treatment" checked={selectedTreatment?.id === tr.id} onChange={() => handleSelectTreatment(tr)} className="sr-only" />
+                              <span className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${selectedTreatment?.id === tr.id ? 'border-primary' : 'border-gray-300'}`}>
+                                {selectedTreatment?.id === tr.id && <span className="w-2 h-2 rounded-full bg-primary block" />}
+                              </span>
+                              {isHe ? tr.he : tr.en}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Duration selector */}
+                      {selectedTreatment && selectedTreatment.durations.length > 1 && (
+                        <div>
+                          <p className="text-xs text-gray-500 mb-2">{isHe ? 'בחר משך' : 'Choose duration'}</p>
+                          <div className="flex gap-2">
+                            {selectedTreatment.durations.map(d => (
+                              <button key={d} type="button" onClick={() => setSelectedDuration(d)}
+                                className={`px-4 py-2 rounded-xl border-2 text-sm font-medium transition-colors ${
+                                  selectedDuration === d ? 'border-primary bg-primary text-white' : 'border-gray-200 text-gray-600 hover:border-primary/50'
+                                }`}>
+                                {d} {t.booking.minuteShort}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                       )}
 
+                      {/* Name + Phone + Submit */}
                       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
                         <input type="text" value={name} onChange={e => setName(e.target.value)} required
                           placeholder={t.booking.namePlaceholder}
@@ -218,7 +273,7 @@ export default function Booking() {
                         <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required
                           placeholder={t.booking.phonePlaceholder} dir="ltr"
                           className="flex-1 border border-primary/20 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white" />
-                        <button type="submit" disabled={submitting || !selectedLocation}
+                        <button type="submit" disabled={submitting || !canSubmit}
                           className="bg-primary hover:bg-primary-dark text-white font-semibold px-5 py-2.5 rounded-xl transition-colors disabled:opacity-50 text-sm whitespace-nowrap">
                           {submitting ? t.booking.submitting : t.booking.submit}
                         </button>

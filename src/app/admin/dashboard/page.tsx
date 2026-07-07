@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 
 // Types
 type Slot = { id: string; date: string; time: string; location: string; duration_minutes: number; is_booked: boolean };
-type Booking = { id: string; client_name: string; client_phone: string; status: string; review_sent: boolean; created_at: string; slots: Slot; selected_location?: string };
+type Booking = { id: string; client_name: string; client_phone: string; status: string; review_sent: boolean; created_at: string; slots: Slot; selected_location?: string; treatment_name?: string; duration_minutes?: number };
 
 const LOCATIONS = ['בן בבא 1, ירושלים', 'חיים ברודי 15, ירושלים', 'ביקור בבית הלקוח'];
 
@@ -37,15 +37,18 @@ function reviewLink(b: Booking): string {
   return `https://wa.me/${formatPhone(b.client_phone)}?text=${encodeURIComponent(msg)}`;
 }
 
-function isAppointmentOver(slot: Slot): boolean {
-  const end = new Date(`${slot.date}T${slot.time}`);
-  end.setMinutes(end.getMinutes() + slot.duration_minutes + 30);
+function isAppointmentOver(b: Booking): boolean {
+  const duration = b.duration_minutes || b.slots.duration_minutes || 60;
+  const end = new Date(`${b.slots.date}T${b.slots.time}`);
+  end.setMinutes(end.getMinutes() + duration + 30);
   return new Date() >= end;
 }
 
 function finalConfirmationLink(b: Booking): string {
   const location = b.selected_location || b.slots?.location || '';
-  const msg = `שלום ${b.client_name}! התור שלך אושר סופית ✅\n📅 ${formatDate(b.slots.date)} בשעה ${b.slots.time.slice(0,5)}\n📍 ${location}\n⏱️ ${b.slots.duration_minutes} דקות\nמצפה לראותך!`;
+  const duration = b.duration_minutes || b.slots?.duration_minutes || 60;
+  const treatment = b.treatment_name ? `\n💆 ${b.treatment_name}` : '';
+  const msg = `שלום ${b.client_name}! התור שלך אושר סופית ✅\n📅 ${formatDate(b.slots.date)} בשעה ${b.slots.time.slice(0,5)}\n📍 ${location}${treatment}\n⏱️ ${duration} דקות\nמצפה לראותך!`;
   return `https://wa.me/${formatPhone(b.client_phone)}?text=${encodeURIComponent(msg)}`;
 }
 
@@ -66,7 +69,6 @@ export default function AdminDashboard() {
   const [newDate, setNewDate] = useState('');
   const [newTime, setNewTime] = useState('');
   const [newLocations, setNewLocations] = useState<string[]>([]);
-  const [newDuration, setNewDuration] = useState('60');
   const [addingSlot, setAddingSlot] = useState(false);
 
   const toggleLocation = (loc: string) =>
@@ -100,9 +102,9 @@ export default function AdminDashboard() {
     await fetch('/api/slots', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ date: newDate, time: newTime, location: JSON.stringify(newLocations), duration_minutes: parseInt(newDuration) }),
+      body: JSON.stringify({ date: newDate, time: newTime, location: JSON.stringify(newLocations), duration_minutes: 60 }),
     });
-    setNewDate(''); setNewTime(''); setNewLocations([]); setNewDuration('60');
+    setNewDate(''); setNewTime(''); setNewLocations([]);
     setAddingSlot(false);
     fetchData();
   };
@@ -134,7 +136,7 @@ export default function AdminDashboard() {
 
   const pending = bookings.filter(b => b.status === 'pending');
   const confirmed = bookings.filter(b => b.status === 'confirmed');
-  const reviewDue = confirmed.filter(b => !b.review_sent && b.slots && isAppointmentOver(b.slots));
+  const reviewDue = confirmed.filter(b => !b.review_sent && b.slots && isAppointmentOver(b));
 
   const tabClass = (t: string) =>
     `px-4 py-2 text-sm font-medium rounded-full transition-colors ${tab === t ? 'bg-[#2F6B6B] text-white' : 'text-[#2F6B6B] hover:bg-[#2F6B6B]/10'}`;
@@ -178,7 +180,7 @@ export default function AdminDashboard() {
                   <div className="bg-[#f5f0eb] rounded-xl p-3 mb-4 text-sm space-y-1">
                     <p>📅 {formatDate(b.slots.date)} בשעה {b.slots.time.slice(0,5)}</p>
                     <p>📍 {b.selected_location || displayLocation(b.slots.location)}</p>
-                    <p>⏱️ {b.slots.duration_minutes} דקות</p>
+                    {b.treatment_name && <p>💆 {b.treatment_name} · {b.duration_minutes} דקות</p>}
                   </div>
                 )}
                 <div className="flex gap-2">
@@ -267,17 +269,6 @@ export default function AdminDashboard() {
                       </label>
                     ))}
                   </div>
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 mb-1 block">משך (דקות)</label>
-                  <select value={newDuration} onChange={e => setNewDuration(e.target.value)}
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6B6B]/30">
-                    <option value="30">30 דקות</option>
-                    <option value="45">45 דקות</option>
-                    <option value="50">50 דקות</option>
-                    <option value="60">60 דקות</option>
-                    <option value="90">90 דקות</option>
-                  </select>
                 </div>
                 <button type="submit" disabled={addingSlot}
                   className="w-full bg-[#2F6B6B] text-white py-3 rounded-xl font-semibold hover:bg-[#1F4A4A] transition-colors disabled:opacity-50">
