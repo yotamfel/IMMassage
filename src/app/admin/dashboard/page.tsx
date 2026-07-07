@@ -303,85 +303,109 @@ export default function AdminDashboard() {
         {/* ── CALENDAR TAB ── */}
         {tab === 'calendar' && (
           <div className="space-y-3">
-            {/* Week nav */}
-            <div className="bg-white rounded-2xl px-4 py-3 shadow-sm flex items-center justify-between">
-              <button onClick={() => navWeek(-1)} className="text-[#2F6B6B] hover:bg-[#2F6B6B]/10 p-2 rounded-lg transition-colors text-lg">→</button>
-              <p className="text-sm font-semibold text-[#2F6B6B]">{fmtWeekRange()}</p>
-              <button onClick={() => navWeek(1)} className="text-[#2F6B6B] hover:bg-[#2F6B6B]/10 p-2 rounded-lg transition-colors text-lg">←</button>
-            </div>
 
-            {/* Day tabs */}
-            <div className="flex gap-1.5 overflow-x-auto pb-1">
-              {weekDays.map(day => {
-                const ds = day.toISOString().split('T')[0];
-                const isSel = calSelectedDay === ds;
-                const isT = ds === todayStr();
-                return (
-                  <button key={ds} onClick={() => setCalSelectedDay(ds)}
-                    className={`flex-shrink-0 flex flex-col items-center px-3 py-2 rounded-xl min-w-[50px] transition-colors ${isSel ? 'bg-[#2F6B6B] text-white' : isT ? 'bg-[#2F6B6B]/10 text-[#2F6B6B]' : 'bg-white text-gray-500 shadow-sm'}`}>
-                    <span className="text-xs">{day.toLocaleDateString('he-IL', { weekday: 'short' })}</span>
-                    <span className="text-lg font-bold leading-tight">{day.getDate()}</span>
-                  </button>
-                );
-              })}
+            {/* Header card: week nav + day chips */}
+            <div className="rounded-2xl overflow-hidden shadow-md" style={{ background: 'linear-gradient(145deg,#2F6B6B 0%,#1d4545 100%)' }}>
+              {/* Week navigation */}
+              <div className="flex items-center justify-between px-4 pt-4 pb-3">
+                <button onClick={() => navWeek(-1)}
+                  className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/15 hover:bg-white/25 text-white text-lg transition-colors">›</button>
+                <p className="text-white font-bold text-sm tracking-wide">{fmtWeekRange()}</p>
+                <button onClick={() => navWeek(1)}
+                  className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/15 hover:bg-white/25 text-white text-lg transition-colors">‹</button>
+              </div>
+
+              {/* Day chips */}
+              <div className="flex gap-1.5 px-3 pb-4 overflow-x-auto">
+                {weekDays.map(day => {
+                  const ds = day.toISOString().split('T')[0];
+                  const isSel = calSelectedDay === ds;
+                  const isT = ds === todayStr();
+                  const dayHasAppt = slots.some(s => s.date === ds && s.is_booked);
+                  const dayHasOpen = slots.some(s => s.date === ds && !s.is_booked);
+                  return (
+                    <button key={ds} onClick={() => setCalSelectedDay(ds)}
+                      className={`flex-shrink-0 flex flex-col items-center px-3 py-2.5 rounded-xl min-w-[50px] transition-all duration-150 ${
+                        isSel ? 'bg-white shadow-lg scale-105' : 'bg-white/12 hover:bg-white/22'
+                      }`}>
+                      <span className={`text-xs font-medium ${isSel ? 'text-[#2F6B6B]/70' : 'text-white/70'}`}>
+                        {day.toLocaleDateString('he-IL', { weekday: 'short' })}
+                      </span>
+                      <span className={`text-xl font-bold leading-tight ${isSel ? 'text-[#2F6B6B]' : isT ? 'text-amber-300' : 'text-white'}`}>
+                        {day.getDate()}
+                      </span>
+                      <div className="flex gap-0.5 mt-1 h-1.5">
+                        {dayHasAppt && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 opacity-90" />}
+                        {dayHasOpen && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 opacity-90" />}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Hourly grid */}
-            <div className="bg-white rounded-2xl overflow-hidden shadow-sm divide-y divide-gray-50">
+            <div className="space-y-1.5">
               {HOURS.map(hour => {
                 const timeStr = `${hour.toString().padStart(2, '0')}:00`;
                 const slot = daySlots.find(s => s.time.startsWith(timeStr.slice(0, 5)));
                 const booking = slot ? bookingBySlotId[slot.id] : undefined;
                 const isPast = isSelectedToday && hour < nowHour;
 
-                // No slot — empty row
+                // Empty — no slot
                 if (!slot) {
                   return (
-                    <div key={hour} className={`flex items-center px-4 py-3 gap-3 ${isPast ? 'opacity-30' : ''}`}>
-                      <span className="text-sm text-gray-400 w-12 flex-shrink-0">{timeStr}</span>
+                    <div key={hour} className={`flex items-center gap-3 px-2 py-1.5 rounded-xl transition-colors ${isPast ? 'opacity-25 pointer-events-none' : 'group hover:bg-white/60'}`}>
+                      <span className="text-xs text-gray-400 w-11 text-left flex-shrink-0 tabular-nums">{timeStr}</span>
+                      <div className="flex-1 h-px bg-gray-200/60 group-hover:bg-[#2F6B6B]/20 transition-colors" />
                       {!isPast && (
                         <button onClick={() => addSlotFromCalendar(calSelectedDay, hour)}
-                          className="text-xs text-[#2F6B6B]/70 hover:text-[#2F6B6B] px-3 py-1.5 rounded-lg border border-dashed border-[#2F6B6B]/25 hover:border-[#2F6B6B]/60 transition-colors">
-                          + פתח לקביעה
+                          className="opacity-0 group-hover:opacity-100 text-xs text-[#2F6B6B] bg-[#2F6B6B]/8 hover:bg-[#2F6B6B]/15 px-3 py-1 rounded-lg border border-dashed border-[#2F6B6B]/30 transition-all flex-shrink-0">
+                          + פתח
                         </button>
                       )}
                     </div>
                   );
                 }
 
-                // Available, not booked
+                // Available (open, not booked)
                 if (!slot.is_booked) {
                   return (
-                    <div key={hour} className={`flex items-center px-4 py-3 gap-3 bg-[#f0f9f6] ${isPast ? 'opacity-50' : ''}`}>
-                      <span className="text-sm font-semibold text-[#2F6B6B] w-12 flex-shrink-0">{timeStr}</span>
-                      <span className="text-sm text-[#2F6B6B] flex-1">פנוי לקביעה</span>
+                    <div key={hour} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border border-[#2F6B6B]/20 ${isPast ? 'opacity-40' : 'bg-gradient-to-l from-[#2F6B6B]/5 to-[#2F6B6B]/10'}`}>
+                      <span className="text-xs font-bold text-[#2F6B6B] w-11 flex-shrink-0 tabular-nums">{timeStr}</span>
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0" />
+                      <span className="text-sm text-[#2F6B6B] font-medium flex-1">פנוי לקביעה</span>
                       <button onClick={() => removeCalendarSlot(slot.id)}
-                        className="text-gray-300 hover:text-red-400 transition-colors text-xl leading-none px-1">×</button>
+                        className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors flex-shrink-0 text-lg leading-none">×</button>
                     </div>
                   );
                 }
 
-                // Booked
+                // No booking record (stale)
                 if (!booking) {
                   return (
-                    <div key={hour} className="flex items-center px-4 py-3 gap-3 bg-gray-50 opacity-60">
-                      <span className="text-sm text-gray-500 w-12 flex-shrink-0">{timeStr}</span>
+                    <div key={hour} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gray-100/80 border border-gray-200 opacity-60">
+                      <span className="text-xs text-gray-500 w-11 flex-shrink-0 tabular-nums">{timeStr}</span>
                       <span className="text-xs text-gray-400 flex-1">תפוס</span>
-                      <button onClick={() => releaseSlot(slot.id)} className="text-xs text-gray-400 hover:text-amber-600 transition-colors">שחרר</button>
+                      <button onClick={() => releaseSlot(slot.id)} className="text-xs text-gray-400 hover:text-amber-600 bg-white px-2 py-1 rounded-lg transition-colors border border-gray-200">שחרר</button>
                     </div>
                   );
                 }
 
+                // Pending booking
                 if (booking.status === 'pending') {
                   return (
-                    <div key={hour} className="flex items-start px-4 py-3 gap-3 bg-amber-50">
-                      <span className="text-sm font-semibold text-amber-700 w-12 flex-shrink-0 pt-0.5">{timeStr}</span>
+                    <div key={hour} className="flex items-center gap-3 px-3 py-3 rounded-xl bg-white shadow-sm border-r-[3px] border-amber-400">
+                      <span className="text-xs font-bold text-amber-600 w-11 flex-shrink-0 tabular-nums">{timeStr}</span>
+                      <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 text-sm font-bold text-amber-700">
+                        {booking.client_name.charAt(0)}
+                      </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-amber-800">{booking.client_name}</p>
-                        <p className="text-xs text-amber-600">ממתין לאישור</p>
+                        <p className="text-sm font-semibold text-gray-800 leading-tight">{booking.client_name}</p>
+                        <p className="text-xs text-amber-500 font-medium">ממתין לאישור</p>
                       </div>
                       <button onClick={() => releaseSlot(slot.id)}
-                        className="text-xs text-amber-600 hover:text-amber-800 bg-amber-100 hover:bg-amber-200 px-2 py-1 rounded-lg transition-colors flex-shrink-0">
+                        className="text-xs text-amber-600 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 px-2.5 py-1.5 rounded-lg transition-colors flex-shrink-0 font-medium border border-amber-200">
                         שחרר
                       </button>
                     </div>
@@ -390,37 +414,51 @@ export default function AdminDashboard() {
 
                 // Confirmed booking
                 const isFinal = booking.final_confirmation_sent;
+                const isExp = expandedCalId === booking.id;
                 return (
                   <div key={hour}
-                    className={`flex items-start px-4 py-3 gap-3 cursor-pointer transition-colors ${isFinal ? 'bg-green-50 hover:bg-green-100/60' : 'bg-blue-50 hover:bg-blue-100/60'}`}
-                    onClick={() => setExpandedCalId(expandedCalId === booking.id ? null : booking.id)}>
-                    <span className={`text-sm font-semibold w-12 flex-shrink-0 pt-0.5 ${isFinal ? 'text-green-700' : 'text-blue-700'}`}>{timeStr}</span>
+                    onClick={() => setExpandedCalId(isExp ? null : booking.id)}
+                    className={`flex items-start gap-3 px-3 py-3 rounded-xl shadow-sm cursor-pointer transition-all duration-150 border-r-[3px] ${
+                      isFinal
+                        ? 'bg-white border-[#2F6B6B] hover:shadow-md'
+                        : 'bg-white border-blue-400 hover:shadow-md'
+                    }`}>
+                    <span className={`text-xs font-bold w-11 flex-shrink-0 tabular-nums pt-0.5 ${isFinal ? 'text-[#2F6B6B]' : 'text-blue-600'}`}>{timeStr}</span>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold ${isFinal ? 'bg-[#2F6B6B]/12 text-[#2F6B6B]' : 'bg-blue-100 text-blue-700'}`}>
+                      {booking.client_name.charAt(0)}
+                    </div>
                     <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-semibold ${isFinal ? 'text-green-800' : 'text-blue-800'}`}>{booking.client_name}</p>
-                      {expandedCalId === booking.id ? (
-                        <div className="mt-1 space-y-0.5">
-                          <p className="text-xs text-gray-500" dir="ltr">{booking.client_phone}</p>
-                          {booking.treatment_name && <p className={`text-xs ${isFinal ? 'text-green-600' : 'text-blue-600'}`}>💆 {booking.treatment_name} · {booking.duration_minutes} דק&apos;</p>}
-                          <p className={`text-xs ${isFinal ? 'text-green-500' : 'text-blue-500'}`}>📍 {booking.selected_location || displayLocation(slot.location)}</p>
-                        </div>
-                      ) : (
-                        <p className={`text-xs ${isFinal ? 'text-green-600' : 'text-blue-500'}`}>
-                          {isFinal ? (booking.treatment_name || 'אושר סופית') : 'ממתין לאישור סופי'}
+                      <div className="flex items-center gap-2">
+                        <p className={`text-sm font-semibold leading-tight ${isFinal ? 'text-gray-800' : 'text-gray-800'}`}>{booking.client_name}</p>
+                        {isFinal && <span className="text-[10px] bg-[#2F6B6B]/10 text-[#2F6B6B] px-1.5 py-0.5 rounded-full font-medium">✓ אושר</span>}
+                      </div>
+                      {!isExp && (
+                        <p className={`text-xs mt-0.5 ${isFinal ? 'text-[#2F6B6B]/70' : 'text-blue-500'}`}>
+                          {booking.treatment_name || (isFinal ? 'אישור סופי נשלח' : 'ממתין לאישור סופי')}
                         </p>
                       )}
+                      {isExp && (
+                        <div className="mt-1.5 space-y-1">
+                          {booking.treatment_name && (
+                            <p className="text-xs text-gray-600">💆 {booking.treatment_name} · {booking.duration_minutes} דק&apos;</p>
+                          )}
+                          <p className="text-xs text-gray-500">📍 {booking.selected_location || displayLocation(slot.location)}</p>
+                          <p className="text-xs text-gray-400" dir="ltr">{booking.client_phone}</p>
+                        </div>
+                      )}
                     </div>
-                    <span className={`text-xs flex-shrink-0 mt-0.5 ${isFinal ? 'text-green-400' : 'text-blue-300'}`}>{expandedCalId === booking.id ? '▲' : '▼'}</span>
+                    <span className={`text-xs flex-shrink-0 mt-1 ${isFinal ? 'text-[#2F6B6B]/40' : 'text-blue-300'}`}>{isExp ? '▲' : '▼'}</span>
                   </div>
                 );
               })}
             </div>
 
             {/* Legend */}
-            <div className="flex flex-wrap gap-3 px-1 text-xs text-gray-400">
-              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-[#2F6B6B]/15 inline-block" />פנוי לקביעה</span>
-              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-amber-200 inline-block" />ממתין</span>
-              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-blue-200 inline-block" />אושר</span>
-              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-green-200 inline-block" />אישור סופי נשלח</span>
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 px-2 pt-1 pb-2">
+              <span className="flex items-center gap-1.5 text-xs text-gray-400"><span className="w-2 h-2 rounded-full bg-emerald-400" />פנוי לקביעה</span>
+              <span className="flex items-center gap-1.5 text-xs text-gray-400"><span className="w-2 h-2 rounded-full bg-amber-400" />ממתין לאישור</span>
+              <span className="flex items-center gap-1.5 text-xs text-gray-400"><span className="w-2 h-2 rounded-full bg-blue-400" />אושר</span>
+              <span className="flex items-center gap-1.5 text-xs text-gray-400"><span className="w-2 h-2 rounded-full bg-[#2F6B6B]" />אישור סופי נשלח</span>
             </div>
           </div>
         )}
