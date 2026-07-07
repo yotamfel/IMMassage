@@ -125,7 +125,7 @@ export default function Booking() {
   };
 
   return (
-    <section id="booking" className="bg-white py-20 px-5">
+    <section id="booking" className="bg-cream-dark py-20 px-5">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
           <h2 className="text-3xl md:text-4xl font-bold text-primary-dark mb-2"
