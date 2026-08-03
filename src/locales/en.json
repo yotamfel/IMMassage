@@ -72,20 +72,22 @@
     "title": "What Clients Say",
     "items": [
       {
-        "name": "Shlomo S.",
         "quote": "I enjoyed a wonderful massage from Israel this morning. He was attentive and professional, and focused on the issues that had been bothering me for a long time. Highly recommend."
       },
       {
-        "name": "Haim V.",
         "quote": "A dreamy massage, released 4 months of tension from reserve duty. I'll definitely be back."
       },
       {
-        "name": "Roi K.",
         "quote": "Israel was friendly and pleasant, tailored the massage to my needs and did an excellent job."
       },
       {
-        "name": "Lior Sh.",
         "quote": "Great treatment, professional and patient."
+      },
+      {
+        "quote": "Israel is a professional therapist specializing in medical massage. A guy who shows respect and truly listens. I highly recommend him - everyone should give it a try."
+      },
+      {
+        "quote": "Great, Israel! After trying a few massage therapists, I settled on him. Highly recommended, gives warm and personal attention."
       }
     ]
   },
