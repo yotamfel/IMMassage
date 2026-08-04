@@ -52,6 +52,17 @@ export default function RootLayout({
       className={`${frankRuhl.variable} ${assistant.variable} ${heebo.variable}`}
     >
 <body className="min-h-full">
+        <Script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-YW8K99BW11"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-YW8K99BW11');`}
+        </Script>
         <Script id="meta-pixel" strategy="afterInteractive">
           {`!function(f,b,e,v,n,t,s)
           {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
