@@ -141,20 +141,7 @@
   },
   "booking": {
     "title": "Book an Appointment",
-    "subtitle": "Choose the time that works for you",
-    "namePlaceholder": "Your full name",
-    "phonePlaceholder": "Phone number",
-    "submit": "Send Request",
-    "submitting": "Sending...",
-    "noSlots": "No available slots at the moment",
-    "loading": "Loading...",
-    "contactWhatsApp": "Contact via WhatsApp",
-    "selectSlot": "Choose a time",
-    "yourDetails": "Your details",
-    "successTitle": "Request sent!",
-    "successText": "Israel will contact you shortly to confirm your appointment.",
-    "sendWhatsApp": "Send request via WhatsApp",
-    "minuteShort": "min"
+    "subtitle": "Choose the time that works for you"
   },
   "footer": {
     "rights": "All rights reserved",
