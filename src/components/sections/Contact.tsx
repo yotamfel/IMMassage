@@ -18,15 +18,10 @@ export default function Contact() {
     <section id="contact" className="bg-primary py-20 px-5">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-12">
-          <h2
-            className="text-3xl md:text-4xl font-bold text-white mb-2"
-            style={{ fontFamily: 'var(--font-frank-ruhl), serif' }}
-          >
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
             {t.contact.title}
           </h2>
-          <p className="text-white/80 text-lg" style={{ fontFamily: 'var(--font-frank-ruhl), serif' }}>
-            {t.contact.subtitle}
-          </p>
+          <p className="text-white/80 text-lg">{t.contact.subtitle}</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-10 items-start">

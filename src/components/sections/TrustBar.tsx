@@ -35,7 +35,6 @@ export default function TrustBar() {
         {/* Certification text */}
         <p
           className="text-center text-white/90 text-base md:text-lg mb-10 max-w-2xl mx-auto leading-relaxed"
-          style={{ fontFamily: 'var(--font-frank-ruhl), serif' }}
         >
           {t.trust.cert}
         </p>

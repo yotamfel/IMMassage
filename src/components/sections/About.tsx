@@ -23,13 +23,12 @@ export default function About() {
         {/* Text */}
         <div>
           <h2
-            className="text-3xl md:text-4xl lg:text-5xl font-light text-[#111] mb-1 tracking-wide"
-            style={{ fontFamily: 'var(--font-heebo), sans-serif' }}
+            className="text-3xl md:text-4xl lg:text-5xl font-light text-[#111] mb-2 tracking-wide"
           >
             {t.about.name}
           </h2>
 
-          <p className="text-primary font-medium text-base mb-1">
+          <p className="text-primary font-medium text-base mb-3">
             {t.about.credential}
           </p>
 

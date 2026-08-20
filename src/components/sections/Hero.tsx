@@ -24,10 +24,7 @@ export default function Hero() {
             {t.hero.title}
           </h1>
 
-          <p
-            className="text-xl md:text-2xl text-primary mb-5"
-            style={{ fontFamily: 'var(--font-frank-ruhl), serif' }}
-          >
+          <p className="text-xl md:text-2xl text-primary mb-5">
             {t.hero.subtitle}
           </p>
           <p className="text-base md:text-lg text-[#555] mb-8 max-w-md mx-auto md:mx-0 leading-relaxed">

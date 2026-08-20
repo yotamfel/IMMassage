@@ -23,5 +23,5 @@ body {
 h1,
 h2,
 h3 {
-  font-family: var(--font-frank-ruhl), Georgia, serif;
+  font-family: var(--font-assistant), 'Segoe UI', Arial, sans-serif;
 }

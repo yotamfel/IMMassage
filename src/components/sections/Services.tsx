@@ -89,10 +89,7 @@ function ServiceCard({ id, title, description }: { id: string; title: string; de
 
       {/* Text */}
       <div className="p-5">
-        <h3
-          className="text-lg font-bold text-primary-dark mb-2"
-          style={{ fontFamily: 'var(--font-frank-ruhl), serif' }}
-        >
+        <h3 className="text-lg font-bold text-primary-dark mb-2">
           {title}
         </h3>
         <p className="text-sm text-[#555] leading-relaxed">{description}</p>
@@ -109,14 +106,15 @@ export default function Services() {
       <div className="max-w-6xl mx-auto">
         <h2
           className="text-3xl md:text-4xl font-bold text-primary-dark text-center mb-12"
-          style={{ fontFamily: 'var(--font-frank-ruhl), serif' }}
         >
           {t.services.title}
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="flex flex-wrap justify-center gap-6">
           {t.services.items.map(item => (
-            <ServiceCard key={item.id} id={item.id} title={item.title} description={item.description} />
+            <div key={item.id} className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]">
+              <ServiceCard id={item.id} title={item.title} description={item.description} />
+            </div>
           ))}
         </div>
       </div>

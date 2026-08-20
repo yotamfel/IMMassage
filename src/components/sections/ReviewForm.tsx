@@ -41,10 +41,7 @@ export default function ReviewForm() {
       <div className="max-w-lg mx-auto">
 
         <div className="text-center mb-8">
-          <h2
-            className="text-3xl md:text-4xl font-bold text-primary-dark mb-2"
-            style={{ fontFamily: 'var(--font-frank-ruhl), serif' }}
-          >
+          <h2 className="text-3xl md:text-4xl font-bold text-primary-dark mb-2">
             {t.review.title}
           </h2>
           <p className="text-primary text-base">{t.review.subtitle}</p>
@@ -59,7 +56,7 @@ export default function ReviewForm() {
                 </svg>
               ))}
             </div>
-            <p className="text-xl font-semibold text-primary-dark" style={{ fontFamily: 'var(--font-frank-ruhl), serif' }}>
+            <p className="text-xl font-semibold text-primary-dark">
               {t.review.success}
             </p>
           </div>
