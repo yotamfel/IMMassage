@@ -118,13 +118,13 @@ export default function ChatBot() {
         `היי, אני ${form.name || 'לקוח'} ומגיע מהצ'אט באתר.`,
         booking ? `מעוניין ב${booking.label}.` : '',
         form.phone ? `הטלפון שלי: ${form.phone}.` : '',
-        'אשמח לדבר עם נציג/ה.',
+        'אשמח לדבר איתך.',
       ].filter(Boolean);
       const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join(' '))}`;
       window.open(waUrl, '_blank');
       setMessages(prev => [
         ...prev,
-        { role: 'bot', text: 'מעביר אותך לוואטסאפ כדי לדבר עם אחת הנציגות שלנו 😊' },
+        { role: 'bot', text: 'מעביר אותך לוואטסאפ כדי לדבר ישירות עם ישראל 😊' },
       ]);
       goToMainMenu();
       return;

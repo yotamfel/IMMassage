@@ -186,7 +186,7 @@ export const chatNodes: ChatNode[] = [
     message: 'נשמע שזה בדיוק מה שחיפשת?',
     options: [
       { label: 'כן, אני רוצה להזמין', nextId: 'CONFIRM_BOOK' },
-      { label: 'אני רוצה לדבר עם נציג/ה', nextId: 'HANDOFF_WHATSAPP' },
+      { label: 'אני רוצה לדבר עם ישראל', nextId: 'HANDOFF_WHATSAPP' },
       { label: 'אני רוצה לבדוק טיפול אחר', nextId: 'select-treatment' },
     ],
   },
