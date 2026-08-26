@@ -54,8 +54,13 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://calendly.com" />
         <link rel="preconnect" href="https://assets.calendly.com" />
+        <link rel="stylesheet" href="https://assets.calendly.com/assets/external/widget.css" />
       </head>
 <body className="min-h-full">
+        <Script
+          src="https://assets.calendly.com/assets/external/widget.js"
+          strategy="afterInteractive"
+        />
         <Script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-YW8K99BW11"

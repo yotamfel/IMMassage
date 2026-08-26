@@ -1,5 +1,4 @@
 'use client';
-import Script from 'next/script';
 import { useLang } from '@/lib/i18n/LangContext';
 
 const CALENDLY_URL =
@@ -28,7 +27,6 @@ export default function Booking() {
             style={{ minWidth: 320, height: 550 }}
           />
         </div>
-        <Script src="https://assets.calendly.com/assets/external/widget.js" strategy="afterInteractive" />
       </div>
     </section>
   );

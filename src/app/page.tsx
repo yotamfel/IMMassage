@@ -11,6 +11,7 @@ import Contact from '@/components/sections/Contact';
 import ReviewForm from '@/components/sections/ReviewForm';
 import Footer from '@/components/sections/Footer';
 import WhatsAppFAB from '@/components/WhatsAppFAB';
+import ChatBot from '@/components/ChatBot';
 
 export default function Home() {
   return (
@@ -28,6 +29,7 @@ export default function Home() {
       <ReviewForm />
       <Footer />
       <WhatsAppFAB />
+      <ChatBot />
     </main>
   );
 }

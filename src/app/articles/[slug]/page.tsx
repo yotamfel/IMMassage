@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/sections/Footer';
 import WhatsAppFAB from '@/components/WhatsAppFAB';
+import ChatBot from '@/components/ChatBot';
 import { articles, getArticle } from '@/lib/articles';
 
 export function generateStaticParams() {
@@ -98,6 +99,7 @@ export default async function ArticlePage({
 
       <Footer />
       <WhatsAppFAB />
+      <ChatBot />
     </main>
   );
 }
