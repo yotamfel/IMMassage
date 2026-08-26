@@ -15,7 +15,7 @@ export default function Articles() {
             <a
               key={article.slug}
               href={`/articles/${article.slug}`}
-              className="group w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col"
+              className="group w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] bg-[#F6F1EA] rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col"
             >
               <h3 className="text-lg font-bold text-primary-dark mb-2">
                 {article.title}
