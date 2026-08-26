@@ -10,7 +10,7 @@ export default function Booking() {
 
   return (
     <section id="booking" className="bg-cream-dark py-20 px-5">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-xl mx-auto">
         <div className="text-center mb-8">
           <h2 className="text-3xl md:text-4xl font-bold text-primary-dark mb-2">
             {t.booking.title}
@@ -22,10 +22,10 @@ export default function Booking() {
           <div
             className="calendly-inline-widget"
             data-url={CALENDLY_URL}
-            style={{ minWidth: 320, height: 700 }}
+            style={{ minWidth: 320, height: 550 }}
           />
         </div>
-        <Script src="https://assets.calendly.com/assets/external/widget.js" strategy="lazyOnload" />
+        <Script src="https://assets.calendly.com/assets/external/widget.js" strategy="afterInteractive" />
       </div>
     </section>
   );
