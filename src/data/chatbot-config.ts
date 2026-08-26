@@ -1,19 +1,27 @@
 // Chat bot configuration for "שחרור במגע".
 // This is the one place to edit when treatments, prices, or answers change.
 //
-// Note: every node in the tree can be reached from a persistent "חזרה לתפריט
-// הראשי" button rendered by the UI itself (ChatBot.tsx) - so node options
-// below only need to list forward moves and one-step-back moves, not a
-// route back to root.
+// The conversation has two entry paths that both end up at select-treatment:
+//   1. The guided flow (root -> reason -> ...) - matches the business owner's
+//      own script: ask name, ask what brought them in, recommend a treatment,
+//      offer duration/price, take a phone number, then confirm - book /
+//      talk to a person / try a different treatment.
+//   2. general-menu - a flat menu (prices, hours, cancellation policy, FAQ,
+//      free-form AI chat) reachable via "יש לי שאלה אחרת" or the persistent
+//      "חזרה לתפריט הראשי" button.
+//
+// A `booking` option carries the specific Calendly link for that treatment +
+// duration; ChatBot.tsx stores it and opens it once name + phone are collected.
 
 export interface ChatOption {
   label: string;
   nextId: string;
+  booking?: { label: string; calendlyUrl: string };
 }
 
 export type ChatNode =
   | { id: string; type: 'menu' | 'info'; message: string; options: ChatOption[] }
-  | { id: string; type: 'booking'; message: string; calendlyUrl: string; options: ChatOption[] };
+  | { id: string; type: 'input'; message: string; variable: 'name' | 'phone' | 'painArea'; nextId: string };
 
 export const CALENDLY_BASE = 'https://calendly.com/matusov19961';
 
@@ -25,13 +33,171 @@ function calendlyUrl(slug: string) {
 }
 
 export const chatNodes: ChatNode[] = [
+  // ---- Guided flow (business owner's script) ----
   {
     id: 'root',
+    type: 'input',
+    message: 'היי! איזה כיף שהגעת אלי, אני שחרור במגע 😊\n\nמה השם שלך?',
+    variable: 'name',
+    nextId: 'reason',
+  },
+  {
+    id: 'reason',
     type: 'menu',
-    message: 'היי! אני העוזר הדיגיטלי של שחרור במגע 😊 איך אפשר לעזור?',
+    message: 'נעים להכיר, {name}! מה מביא אותך אלי היום?',
     options: [
-      { label: 'קביעת תור', nextId: 'book-select-service' },
-      { label: 'שאלה על טיפול ספציפי', nextId: 'info-select-service' },
+      { label: 'מרגיש כאב באיזור מסוים', nextId: 'pain-detail' },
+      { label: 'רוצה להוריד לחץ יום יומי', nextId: 'select-treatment' },
+      { label: 'פינוק לעצמי או מתנה', nextId: 'select-treatment' },
+      { label: 'יש לי שאלה אחרת', nextId: 'general-menu' },
+    ],
+  },
+  {
+    id: 'pain-detail',
+    type: 'input',
+    message: 'מבין. תרצה לפרט לי קצת יותר איפה כואב לך?',
+    variable: 'painArea',
+    nextId: 'select-treatment',
+  },
+  {
+    id: 'select-treatment',
+    type: 'menu',
+    message: 'תרצה שנתאים לך טיפול מתאים? הנה האפשרויות שלנו:',
+    options: [
+      { label: 'עיסוי שוודי', nextId: 'info-swedish' },
+      { label: 'עיסוי רפואי', nextId: 'info-medical' },
+      { label: 'כוסות רוח', nextId: 'info-cupping' },
+      { label: 'אבנים חמות', nextId: 'info-hot-stones' },
+      { label: 'עיסוי צוואר ופנים', nextId: 'info-face-neck' },
+      { label: 'חזרה לתפריט הראשי', nextId: 'general-menu' },
+    ],
+  },
+
+  // ---- Treatment explanations -> duration/price -> phone ----
+  {
+    id: 'info-swedish',
+    type: 'info',
+    message:
+      'עיסוי שוודי משולב - שילוב טכניקות עיסוי שוודי עם עבודה על נקודות שרירים עמוקים, להשגת איזון והרגעה מלאה של הגוף.',
+    options: [
+      { label: 'קבוע תור לטיפול הזה', nextId: 'duration-swedish' },
+      { label: 'טיפול אחר', nextId: 'select-treatment' },
+    ],
+  },
+  {
+    id: 'duration-swedish',
+    type: 'menu',
+    message: 'איזה משך תרצה?',
+    options: [
+      {
+        label: '45 דקות - 250 ₪',
+        nextId: 'ask-phone',
+        booking: { label: 'עיסוי שוודי, 45 דקות', calendlyUrl: calendlyUrl('new-meeting') },
+      },
+      {
+        label: '60 דקות - 300 ₪',
+        nextId: 'ask-phone',
+        booking: { label: 'עיסוי שוודי, 60 דקות', calendlyUrl: calendlyUrl('30min') },
+      },
+      { label: 'חזרה', nextId: 'select-treatment' },
+    ],
+  },
+  {
+    id: 'info-medical',
+    type: 'info',
+    message:
+      'עיסוי רפואי - טיפול ממוקד לבעיות שרירים, כאבים כרוניים, מתח ופציעות, מותאם אישית לצורך שלך.',
+    options: [
+      { label: 'קבוע תור לטיפול הזה', nextId: 'duration-medical' },
+      { label: 'טיפול אחר', nextId: 'select-treatment' },
+    ],
+  },
+  {
+    id: 'duration-medical',
+    type: 'menu',
+    message: 'איזה משך תרצה?',
+    options: [
+      {
+        label: '45 דקות - 250 ₪',
+        nextId: 'ask-phone',
+        booking: { label: 'עיסוי רפואי, 45 דקות', calendlyUrl: calendlyUrl('meet-with-me') },
+      },
+      {
+        label: '60 דקות - 300 ₪',
+        nextId: 'ask-phone',
+        booking: { label: 'עיסוי רפואי, 60 דקות', calendlyUrl: calendlyUrl('60') },
+      },
+      { label: 'חזרה', nextId: 'select-treatment' },
+    ],
+  },
+  {
+    id: 'info-hot-stones',
+    type: 'info',
+    message:
+      'אבנים חמות - עיסוי עם אבני בזלת חמות לשחרור שרירים עמוקים, שיפור זרימת הדם והרגעה מוחלטת. 50 דקות ב-300 ₪.',
+    options: [
+      {
+        label: 'קבוע תור לטיפול הזה',
+        nextId: 'ask-phone',
+        booking: { label: 'אבנים חמות, 50 דקות', calendlyUrl: calendlyUrl('meet-with-me-1') },
+      },
+      { label: 'טיפול אחר', nextId: 'select-treatment' },
+    ],
+  },
+  {
+    id: 'info-cupping',
+    type: 'info',
+    message:
+      'כוסות רוח - טיפול מסורתי לשחרור חסימות, שיפור זרימת הדם, הקלה על כאבים והפחתת דלקות. 50 דקות ב-300 ₪.',
+    options: [
+      {
+        label: 'קבוע תור לטיפול הזה',
+        nextId: 'ask-phone',
+        booking: { label: 'כוסות רוח, 50 דקות', calendlyUrl: calendlyUrl('meet-with-me-2') },
+      },
+      { label: 'טיפול אחר', nextId: 'select-treatment' },
+    ],
+  },
+  {
+    id: 'info-face-neck',
+    type: 'info',
+    message:
+      'עיסוי צוואר ופנים - עיסוי עדין וממוקד לאזורי הפנים, הצוואר והקרקפת - לשחרור מתח שרירי, הפחתת כאבי ראש ושיפור זרימת הדם לעור. 30 דקות ב-200 ₪.',
+    options: [
+      {
+        label: 'קבוע תור לטיפול הזה',
+        nextId: 'ask-phone',
+        booking: { label: 'עיסוי צוואר ופנים, 30 דקות', calendlyUrl: calendlyUrl('meet-with-me-3') },
+      },
+      { label: 'טיפול אחר', nextId: 'select-treatment' },
+    ],
+  },
+
+  {
+    id: 'ask-phone',
+    type: 'input',
+    message: 'מעולה! מה מספר הטלפון שלך?',
+    variable: 'phone',
+    nextId: 'confirm',
+  },
+  {
+    id: 'confirm',
+    type: 'menu',
+    message: 'נשמע שזה בדיוק מה שחיפשת?',
+    options: [
+      { label: 'כן, אני רוצה להזמין', nextId: 'CONFIRM_BOOK' },
+      { label: 'אני רוצה לדבר עם נציג/ה', nextId: 'HANDOFF_WHATSAPP' },
+      { label: 'אני רוצה לבדוק טיפול אחר', nextId: 'select-treatment' },
+    ],
+  },
+
+  // ---- General menu (secondary path) ----
+  {
+    id: 'general-menu',
+    type: 'menu',
+    message: 'איך אפשר לעזור?',
+    options: [
+      { label: 'קביעת תור', nextId: 'select-treatment' },
       { label: 'מחירים', nextId: 'prices' },
       { label: 'שעות פתיחה וזמינות', nextId: 'hours' },
       { label: 'מדיניות ביטולים', nextId: 'cancellation' },
@@ -39,141 +205,6 @@ export const chatNodes: ChatNode[] = [
       { label: 'משהו אחר', nextId: 'free-chat' },
     ],
   },
-
-  // ---- Booking branch ----
-  {
-    id: 'book-select-service',
-    type: 'menu',
-    message: 'איזה טיפול תרצה לקבוע?',
-    options: [
-      { label: 'עיסוי שוודי', nextId: 'book-swedish-duration' },
-      { label: 'עיסוי רפואי', nextId: 'book-medical-duration' },
-      { label: 'אבנים חמות', nextId: 'book-hot-stones' },
-      { label: 'כוסות רוח', nextId: 'book-cupping' },
-      { label: 'עיסוי צוואר ופנים', nextId: 'book-face-neck' },
-    ],
-  },
-  {
-    id: 'book-swedish-duration',
-    type: 'menu',
-    message: 'כמה זמן תרצה לעיסוי השוודי?',
-    options: [
-      { label: '45 דקות', nextId: 'book-swedish-45' },
-      { label: '60 דקות', nextId: 'book-swedish-60' },
-      { label: 'חזרה', nextId: 'book-select-service' },
-    ],
-  },
-  {
-    id: 'book-medical-duration',
-    type: 'menu',
-    message: 'כמה זמן תרצה לעיסוי הרפואי?',
-    options: [
-      { label: '45 דקות', nextId: 'book-medical-45' },
-      { label: '60 דקות', nextId: 'book-medical-60' },
-      { label: 'חזרה', nextId: 'book-select-service' },
-    ],
-  },
-
-  {
-    id: 'book-swedish-45',
-    type: 'booking',
-    message: 'מעולה! עיסוי שוודי, 45 דקות. לוחצים למטה כדי לבחור תאריך ושעה פנויים:',
-    calendlyUrl: calendlyUrl('new-meeting'),
-    options: [],
-  },
-  {
-    id: 'book-swedish-60',
-    type: 'booking',
-    message: 'מעולה! עיסוי שוודי, 60 דקות. לוחצים למטה כדי לבחור תאריך ושעה פנויים:',
-    calendlyUrl: calendlyUrl('30min'),
-    options: [],
-  },
-  {
-    id: 'book-medical-45',
-    type: 'booking',
-    message: 'מעולה! עיסוי רפואי, 45 דקות. לוחצים למטה כדי לבחור תאריך ושעה פנויים:',
-    calendlyUrl: calendlyUrl('meet-with-me'),
-    options: [],
-  },
-  {
-    id: 'book-medical-60',
-    type: 'booking',
-    message: 'מעולה! עיסוי רפואי, 60 דקות. לוחצים למטה כדי לבחור תאריך ושעה פנויים:',
-    calendlyUrl: calendlyUrl('60'),
-    options: [],
-  },
-  {
-    id: 'book-hot-stones',
-    type: 'booking',
-    message: 'מעולה! עיסוי אבנים חמות, 50 דקות. לוחצים למטה כדי לבחור תאריך ושעה פנויים:',
-    calendlyUrl: calendlyUrl('meet-with-me-1'),
-    options: [],
-  },
-  {
-    id: 'book-cupping',
-    type: 'booking',
-    message: 'מעולה! כוסות רוח, 50 דקות. לוחצים למטה כדי לבחור תאריך ושעה פנויים:',
-    calendlyUrl: calendlyUrl('meet-with-me-2'),
-    options: [],
-  },
-  {
-    id: 'book-face-neck',
-    type: 'booking',
-    message: 'מעולה! עיסוי צוואר ופנים, 30 דקות. לוחצים למטה כדי לבחור תאריך ושעה פנויים:',
-    calendlyUrl: calendlyUrl('meet-with-me-3'),
-    options: [],
-  },
-
-  // ---- Info about a specific treatment branch ----
-  {
-    id: 'info-select-service',
-    type: 'menu',
-    message: 'על איזה טיפול תרצה לשמוע?',
-    options: [
-      { label: 'עיסוי שוודי', nextId: 'info-swedish' },
-      { label: 'עיסוי רפואי', nextId: 'info-medical' },
-      { label: 'אבנים חמות', nextId: 'info-hot-stones' },
-      { label: 'כוסות רוח', nextId: 'info-cupping' },
-      { label: 'עיסוי צוואר ופנים', nextId: 'info-face-neck' },
-    ],
-  },
-  {
-    id: 'info-swedish',
-    type: 'info',
-    message:
-      'עיסוי שוודי משולב - שילוב טכניקות עיסוי שוודי עם עבודה על נקודות שרירים עמוקים, להשגת איזון והרגעה מלאה של הגוף. יש באורך 45 או 60 דקות.',
-    options: [{ label: 'קבוע תור לטיפול הזה', nextId: 'book-swedish-duration' }],
-  },
-  {
-    id: 'info-medical',
-    type: 'info',
-    message:
-      'עיסוי רפואי - טיפול ממוקד לבעיות שרירים, כאבים כרוניים, מתח ופציעות, מותאם אישית לצורך שלך. יש באורך 45 או 60 דקות.',
-    options: [{ label: 'קבוע תור לטיפול הזה', nextId: 'book-medical-duration' }],
-  },
-  {
-    id: 'info-hot-stones',
-    type: 'info',
-    message:
-      'אבנים חמות - עיסוי עם אבני בזלת חמות לשחרור שרירים עמוקים, שיפור זרימת הדם והרגעה מוחלטת. 50 דקות.',
-    options: [{ label: 'קבוע תור לטיפול הזה', nextId: 'book-hot-stones' }],
-  },
-  {
-    id: 'info-cupping',
-    type: 'info',
-    message:
-      'כוסות רוח - טיפול מסורתי לשחרור חסימות, שיפור זרימת הדם, הקלה על כאבים והפחתת דלקות. 50 דקות.',
-    options: [{ label: 'קבוע תור לטיפול הזה', nextId: 'book-cupping' }],
-  },
-  {
-    id: 'info-face-neck',
-    type: 'info',
-    message:
-      'עיסוי צוואר ופנים - עיסוי עדין וממוקד לאזורי הפנים, הצוואר והקרקפת - לשחרור מתח שרירי, הפחתת כאבי ראש ושיפור זרימת הדם לעור. 30 דקות.',
-    options: [{ label: 'קבוע תור לטיפול הזה', nextId: 'book-face-neck' }],
-  },
-
-  // ---- Prices / hours / cancellation ----
   {
     id: 'prices',
     type: 'info',
@@ -185,21 +216,21 @@ export const chatNodes: ChatNode[] = [
       'אבנים חמות - 50 דק׳ ב-300 ₪\n' +
       'עיסוי פנים וצוואר - 30 דק׳ ב-200 ₪\n\n' +
       'הטיפול לגברים בלבד. יש גם חבילות משתלמות - אפשר לשאול עליהן ביצירת קשר.',
-    options: [{ label: 'קביעת תור', nextId: 'book-select-service' }],
+    options: [{ label: 'קביעת תור', nextId: 'select-treatment' }],
   },
   {
     id: 'hours',
     type: 'info',
     message:
       'אין שעות קבועות מראש - הזמינות מוצגת בזמן אמת בלוח השנה של קלנדלי. כשתבחרו טיפול ותלחצו לקביעת תור, תוכלו לראות ישר את כל התאריכים והשעות הפנויות.',
-    options: [{ label: 'קביעת תור', nextId: 'book-select-service' }],
+    options: [{ label: 'קביעת תור', nextId: 'select-treatment' }],
   },
   {
     id: 'cancellation',
     type: 'info',
     message:
       'אפשר לבטל או לשנות תור בחינם עד 12 שעות לפני מועד הטיפול. ביטול בפחות מ-12 שעות מראש מחייב תשלום מלא על הטיפול.',
-    options: [{ label: 'קביעת תור', nextId: 'book-select-service' }],
+    options: [{ label: 'קביעת תור', nextId: 'select-treatment' }],
   },
 
   // ---- FAQ branch ----
@@ -248,6 +279,8 @@ export function getChatNode(id: string): ChatNode | undefined {
 }
 
 export const ROOT_NODE_ID = 'root';
+export const MAIN_MENU_NODE_ID = 'general-menu';
+export const WHATSAPP_NUMBER = '972508838374';
 
 // ---------------------------------------------------------------------------
 // Business info fed to the AI for free-form chat (system prompt injection).

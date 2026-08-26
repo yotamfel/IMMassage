@@ -1,7 +1,14 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { chatNodes, getChatNode, ROOT_NODE_ID, ChatOption } from '@/data/chatbot-config';
+import {
+  chatNodes,
+  getChatNode,
+  ROOT_NODE_ID,
+  MAIN_MENU_NODE_ID,
+  WHATSAPP_NUMBER,
+  ChatOption,
+} from '@/data/chatbot-config';
 import { detectsBookingIntent, BOOKING_INTENT_NODE_ID } from '@/lib/chatbot-intent';
 
 declare global {
@@ -22,7 +29,22 @@ interface ApiMessage {
   content: string;
 }
 
+interface FormData {
+  name: string;
+  phone: string;
+  painArea: string;
+}
+
+interface PendingBooking {
+  label: string;
+  calendlyUrl: string;
+}
+
 const rootNode = chatNodes.find(n => n.id === ROOT_NODE_ID)!;
+
+function interpolate(message: string, form: FormData): string {
+  return message.replace('{name}', form.name || '');
+}
 
 export default function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,6 +54,8 @@ export default function ChatBot() {
   const [freeChatHistory, setFreeChatHistory] = useState<ApiMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState<FormData>({ name: '', phone: '', painArea: '' });
+  const [pendingBooking, setPendingBooking] = useState<PendingBooking | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,10 +68,12 @@ export default function ChatBot() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, loading]);
 
-  function goToRoot() {
-    setCurrentNodeId(ROOT_NODE_ID);
+  function goToMainMenu() {
+    const node = getChatNode(MAIN_MENU_NODE_ID);
+    if (!node) return;
+    setCurrentNodeId(node.id);
     setFreeChatMode(false);
-    setMessages(prev => [...prev, { role: 'bot', text: rootNode.message }]);
+    setMessages(prev => [...prev, { role: 'bot', text: interpolate(node.message, form) }]);
   }
 
   function selectOption(option: ChatOption) {
@@ -61,15 +87,79 @@ export default function ChatBot() {
       return;
     }
 
+    if (option.booking) {
+      setPendingBooking(option.booking);
+    }
+
+    if (option.nextId === 'CONFIRM_BOOK') {
+      const booking = option.booking ?? pendingBooking;
+      setMessages(prev => [...prev, { role: 'user', text: option.label }]);
+      if (booking) {
+        const url = form.name
+          ? `${booking.calendlyUrl}&name=${encodeURIComponent(form.name)}`
+          : booking.calendlyUrl;
+        window.Calendly?.initPopupWidget({ url });
+        setMessages(prev => [
+          ...prev,
+          {
+            role: 'bot',
+            text: `מעולה${form.name ? ' ' + form.name : ''}! פתחתי לך את לוח השנה לבחירת תאריך ושעה ל${booking.label} 😊`,
+          },
+        ]);
+      }
+      goToMainMenu();
+      return;
+    }
+
+    if (option.nextId === 'HANDOFF_WHATSAPP') {
+      const booking = option.booking ?? pendingBooking;
+      setMessages(prev => [...prev, { role: 'user', text: option.label }]);
+      const lines = [
+        `היי, אני ${form.name || 'לקוח'} ומגיע מהצ'אט באתר.`,
+        booking ? `מעוניין ב${booking.label}.` : '',
+        form.phone ? `הטלפון שלי: ${form.phone}.` : '',
+        'אשמח לדבר עם נציג/ה.',
+      ].filter(Boolean);
+      const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join(' '))}`;
+      window.open(waUrl, '_blank');
+      setMessages(prev => [
+        ...prev,
+        { role: 'bot', text: 'מעביר אותך לוואטסאפ כדי לדבר עם אחת הנציגות שלנו 😊' },
+      ]);
+      goToMainMenu();
+      return;
+    }
+
     const node = getChatNode(option.nextId);
     if (!node) return;
 
-    setMessages(prev => [...prev, { role: 'user', text: option.label }, { role: 'bot', text: node.message }]);
+    setMessages(prev => [
+      ...prev,
+      { role: 'user', text: option.label },
+      { role: 'bot', text: interpolate(node.message, form) },
+    ]);
     setCurrentNodeId(node.id);
+  }
 
-    if (node.type === 'booking') {
-      window.Calendly?.initPopupWidget({ url: node.calendlyUrl });
-    }
+  function submitInputValue() {
+    const text = inputText.trim();
+    if (!text || loading) return;
+
+    const node = currentNode;
+    if (!node || node.type !== 'input') return;
+
+    setInputText('');
+    setForm(prev => ({ ...prev, [node.variable]: text }));
+
+    const nextNode = getChatNode(node.nextId);
+    setMessages(prev => [
+      ...prev,
+      { role: 'user', text },
+      ...(nextNode
+        ? [{ role: 'bot' as const, text: interpolate(nextNode.message, { ...form, [node.variable]: text }) }]
+        : []),
+    ]);
+    if (nextNode) setCurrentNodeId(nextNode.id);
   }
 
   async function sendFreeText() {
@@ -81,7 +171,7 @@ export default function ChatBot() {
     if (detectsBookingIntent(text)) {
       const node = getChatNode(BOOKING_INTENT_NODE_ID);
       if (node) {
-        setMessages(prev => [...prev, { role: 'bot', text: node.message }]);
+        setMessages(prev => [...prev, { role: 'bot', text: interpolate(node.message, form) }]);
         setCurrentNodeId(node.id);
         setFreeChatMode(false);
         return;
@@ -113,7 +203,9 @@ export default function ChatBot() {
   }
 
   const currentNode = getChatNode(currentNodeId);
-  const showTreeOptions = !freeChatMode && currentNode;
+  const showTreeOptions = !freeChatMode && currentNode?.type !== 'input' && currentNode;
+  const showTreeInput = !freeChatMode && currentNode?.type === 'input';
+  const showBackButton = !freeChatMode && currentNodeId !== ROOT_NODE_ID;
 
   return (
     <>
@@ -177,6 +269,25 @@ export default function ChatBot() {
               </div>
             )}
 
+            {showTreeInput && (
+              <div className="px-3 py-3 flex gap-2">
+                <input
+                  type="text"
+                  value={inputText}
+                  onChange={e => setInputText(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && submitInputValue()}
+                  placeholder="כתוב כאן..."
+                  className="flex-1 bg-white border border-primary/20 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-primary/50"
+                />
+                <button
+                  onClick={submitInputValue}
+                  className="bg-primary text-white rounded-full px-4 py-2 text-sm font-medium hover:bg-primary-dark transition-colors"
+                >
+                  שלח
+                </button>
+              </div>
+            )}
+
             {freeChatMode && (
               <div className="px-3 py-3 flex flex-col gap-2">
                 <div className="flex gap-2">
@@ -197,19 +308,13 @@ export default function ChatBot() {
                     שלח
                   </button>
                 </div>
-                <button
-                  onClick={goToRoot}
-                  className="self-start text-xs text-primary hover:text-primary-dark transition-colors"
-                >
-                  חזרה לתפריט הראשי
-                </button>
               </div>
             )}
 
-            {showTreeOptions && currentNode!.id !== ROOT_NODE_ID && (
+            {showBackButton && (
               <div className="px-3 pb-3">
                 <button
-                  onClick={goToRoot}
+                  onClick={goToMainMenu}
                   className="text-xs text-primary hover:text-primary-dark transition-colors"
                 >
                   חזרה לתפריט הראשי
