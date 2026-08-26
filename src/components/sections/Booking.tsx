@@ -2,7 +2,8 @@
 import Script from 'next/script';
 import { useLang } from '@/lib/i18n/LangContext';
 
-const CALENDLY_URL = 'https://calendly.com/matusov19961';
+const CALENDLY_URL =
+  'https://calendly.com/matusov19961?background_color=ede3d5&text_color=2b2b2b&primary_color=2f6b6b';
 
 export default function Booking() {
   const { t } = useLang();
