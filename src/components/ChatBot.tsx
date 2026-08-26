@@ -216,7 +216,7 @@ export default function ChatBot() {
   const currentNode = getChatNode(currentNodeId);
   const showTreeOptions = !freeChatMode && currentNode?.type !== 'input' && currentNode;
   const showTreeInput = !freeChatMode && currentNode?.type === 'input';
-  const showBackButton = !freeChatMode && currentNodeId !== ROOT_NODE_ID;
+  const showBackButton = currentNodeId !== ROOT_NODE_ID;
 
   return (
     <>
