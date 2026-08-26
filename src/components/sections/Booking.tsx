@@ -18,11 +18,13 @@ export default function Booking() {
           <p className="text-primary text-base">{t.booking.subtitle}</p>
         </div>
 
-        <div
-          className="calendly-inline-widget"
-          data-url={CALENDLY_URL}
-          style={{ minWidth: 320, height: 700 }}
-        />
+        <div className="border-2 border-black rounded-2xl overflow-hidden">
+          <div
+            className="calendly-inline-widget"
+            data-url={CALENDLY_URL}
+            style={{ minWidth: 320, height: 700 }}
+          />
+        </div>
         <Script src="https://assets.calendly.com/assets/external/widget.js" strategy="lazyOnload" />
       </div>
     </section>
