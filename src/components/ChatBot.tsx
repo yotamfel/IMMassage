@@ -59,6 +59,11 @@ export default function ChatBot() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const timer = setTimeout(() => setIsOpen(true), 1200);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
     if (isOpen && messages.length === 0) {
       setMessages([{ role: 'bot', text: rootNode.message }]);
     }
