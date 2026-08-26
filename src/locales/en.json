@@ -145,6 +145,15 @@
     "subtitle": "Choose the time that works for you",
     "loading": "Loading the booking system..."
   },
+  "articlesSection": {
+    "title": "Articles",
+    "readMore": "Read the full article"
+  },
+  "articlePage": {
+    "backToArticles": "All articles",
+    "ctaQuestion": "Have a question or want to book an appointment?",
+    "ctaButton": "Book an Appointment"
+  },
   "footer": {
     "rights": "All rights reserved",
     "backToTop": "Back to top",

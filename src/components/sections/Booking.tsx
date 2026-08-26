@@ -1,11 +1,34 @@
 'use client';
+import { useEffect, useRef } from 'react';
 import { useLang } from '@/lib/i18n/LangContext';
-
-const CALENDLY_URL =
-  'https://calendly.com/matusov19961?background_color=ede3d5&text_color=000000&primary_color=2f6b6b';
+import { buildCalendlyUrl } from '@/data/chatbot-config';
 
 export default function Booking() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let cancelled = false;
+    const url = buildCalendlyUrl(undefined, lang);
+
+    function render() {
+      if (cancelled || !container) return;
+      if (window.Calendly) {
+        container.innerHTML = '';
+        window.Calendly.initInlineWidget({ url, parentElement: container });
+      } else {
+        setTimeout(render, 200);
+      }
+    }
+    render();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [lang]);
 
   return (
     <section id="booking" className="bg-cream-dark py-20 px-5">
@@ -21,11 +44,7 @@ export default function Booking() {
           <div className="absolute inset-0 flex items-center justify-center text-primary-dark text-sm">
             {t.booking.loading}
           </div>
-          <div
-            className="calendly-inline-widget relative z-10"
-            data-url={CALENDLY_URL}
-            style={{ minWidth: 320, height: 550 }}
-          />
+          <div ref={containerRef} className="relative z-10" style={{ minWidth: 320, height: 550 }} />
         </div>
       </div>
     </section>

@@ -10,13 +10,15 @@
 //      free-form AI chat) reachable via "יש לי שאלה אחרת" or the persistent
 //      "חזרה לתפריט הראשי" button.
 //
-// A `booking` option carries the specific Calendly link for that treatment +
-// duration; ChatBot.tsx stores it and opens it once name + phone are collected.
+// A `booking` option carries the specific Calendly event slug for that
+// treatment + duration; ChatBot.tsx stores it and opens it (via
+// buildCalendlyUrl, which adds the current UI language) once name + phone
+// are collected.
 
 export interface ChatOption {
   label: string;
   nextId: string;
-  booking?: { label: string; calendlyUrl: string };
+  booking?: { label: string; slug: string };
 }
 
 export type ChatNode =
@@ -30,6 +32,17 @@ const CAL_PARAMS = 'background_color=ede3d5&text_color=000000&primary_color=2f6b
 
 function calendlyUrl(slug: string) {
   return `${CALENDLY_BASE}/${slug}?${CAL_PARAMS}`;
+}
+
+// Builds a Calendly URL - for a specific event slug, or (when omitted) the
+// top-level scheduling page listing all event types - in the requested UI
+// language. Calendly's own chrome (buttons, "Select a Date & Time", etc.)
+// switches with `locale`; the event name/location text is whatever the
+// business owner set up in their Calendly account and can't be translated
+// from here.
+export function buildCalendlyUrl(slug: string | undefined, lang: 'he' | 'en' = 'he') {
+  const url = slug ? calendlyUrl(slug) : `${CALENDLY_BASE}?${CAL_PARAMS}`;
+  return lang === 'en' ? `${url}&locale=en` : url;
 }
 
 export const chatNodes: ChatNode[] = [
@@ -79,7 +92,7 @@ export const chatNodes: ChatNode[] = [
     type: 'info',
     message:
       'עיסוי שוודי משולב - שילוב טכניקות עיסוי שוודי עם עבודה על נקודות שרירים עמוקים, להשגת איזון והרגעה מלאה של הגוף.\n\n' +
-      'למי מתאים: מי שעובד שעות רבות בישיבה, מי שעוסק בפעילות גופנית, מי שמרגיש עומס אחרי יום עבודה, או פשוט מי שרוצה ליהנות מזמן של רוגע.',
+      'למי מתאים: מי שמחפש רוגע ושחרור כללי של כל הגוף, ולא בהכרח טיפול ממוקד באזור ספציפי. מתאים גם למגיעים לעיסוי בפעם הראשונה.',
     options: [
       { label: 'קבוע תור לטיפול הזה', nextId: 'duration-swedish' },
       { label: 'טיפול אחר', nextId: 'select-treatment' },
@@ -93,12 +106,12 @@ export const chatNodes: ChatNode[] = [
       {
         label: '45 דקות - 250 ₪',
         nextId: 'ask-phone',
-        booking: { label: 'עיסוי שוודי, 45 דקות', calendlyUrl: calendlyUrl('new-meeting') },
+        booking: { label: 'עיסוי שוודי, 45 דקות', slug: 'new-meeting' },
       },
       {
         label: '60 דקות - 300 ₪',
         nextId: 'ask-phone',
-        booking: { label: 'עיסוי שוודי, 60 דקות', calendlyUrl: calendlyUrl('30min') },
+        booking: { label: 'עיסוי שוודי, 60 דקות', slug: '30min' },
       },
       { label: 'חזרה', nextId: 'select-treatment' },
     ],
@@ -108,7 +121,7 @@ export const chatNodes: ChatNode[] = [
     type: 'info',
     message:
       'עיסוי רפואי - טיפול ממוקד לבעיות שרירים, כאבים כרוניים, מתח ופציעות, מותאם אישית לצורך שלך.\n\n' +
-      'למי מתאים: מי שיושב שעות רבות מול מחשב, עובד בעבודה פיזית, מתאמן באופן קבוע, מרגיש עומס בשרירי הגב והכתפיים, או מחפש טיפול ממוקד יותר.',
+      'למי מתאים: מי שמחפש עבודה ממוקדת על אזור ספציפי - למשל כאב כרוני, פציעה, או עומס בשרירי הגב והכתפיים - ולא רק הרפיה כללית. מתאים למי שיושב שעות מול מחשב, עובד בעבודה פיזית או מתאמן באופן קבוע.',
     options: [
       { label: 'קבוע תור לטיפול הזה', nextId: 'duration-medical' },
       { label: 'טיפול אחר', nextId: 'select-treatment' },
@@ -122,12 +135,12 @@ export const chatNodes: ChatNode[] = [
       {
         label: '45 דקות - 250 ₪',
         nextId: 'ask-phone',
-        booking: { label: 'עיסוי רפואי, 45 דקות', calendlyUrl: calendlyUrl('meet-with-me') },
+        booking: { label: 'עיסוי רפואי, 45 דקות', slug: 'meet-with-me' },
       },
       {
         label: '60 דקות - 300 ₪',
         nextId: 'ask-phone',
-        booking: { label: 'עיסוי רפואי, 60 דקות', calendlyUrl: calendlyUrl('60') },
+        booking: { label: 'עיסוי רפואי, 60 דקות', slug: '60' },
       },
       { label: 'חזרה', nextId: 'select-treatment' },
     ],
@@ -137,12 +150,12 @@ export const chatNodes: ChatNode[] = [
     type: 'info',
     message:
       'אבנים חמות - עיסוי עם אבני בזלת חמות לשחרור שרירים עמוקים, שיפור זרימת הדם והרגעה מוחלטת. 50 דקות ב-300 ₪.\n\n' +
-      'למי מתאים: מי שמחפש זמן של רוגע והפסקה מהשגרה, טיפול מגע נעים ומרגיע, שילוב של חום ומגע, או חוויית עיסוי שונה מעיסוי רגיל.',
+      'למי מתאים: מי שאוהב תחושת חום ורוצה משהו מעבר לעיסוי שוודי רגיל - החום עוזר לשחרר שרירים עמוקים יותר ומעניק תחושת הרגעה שונה ומיוחדת.',
     options: [
       {
         label: 'קבוע תור לטיפול הזה',
         nextId: 'ask-phone',
-        booking: { label: 'אבנים חמות, 50 דקות', calendlyUrl: calendlyUrl('meet-with-me-1') },
+        booking: { label: 'אבנים חמות, 50 דקות', slug: 'meet-with-me-1' },
       },
       { label: 'טיפול אחר', nextId: 'select-treatment' },
     ],
@@ -152,12 +165,12 @@ export const chatNodes: ChatNode[] = [
     type: 'info',
     message:
       'כוסות רוח - טיפול מסורתי לשחרור חסימות, שיפור זרימת הדם, הקלה על כאבים והפחתת דלקות. 50 דקות ב-300 ₪.\n\n' +
-      'למי מתאים: מי שרוצה לשלב טכניקה מסורתית בטיפול, מרגיש עומס באזור הגב והכתפיים, או מחפש חוויית טיפול שונה מעיסוי רגיל. שימו לב שהטיפול עלול להשאיר סימנים זמניים על העור.',
+      'למי מתאים: מי שמחפש טכניקה מסורתית ותחושה שונה לגמרי מעיסוי רגיל (יניקה ולא לחיצה), בעיקר לשחרור עומס באזור הגב והכתפיים. שימו לב שהטיפול עלול להשאיר סימנים זמניים על העור.',
     options: [
       {
         label: 'קבוע תור לטיפול הזה',
         nextId: 'ask-phone',
-        booking: { label: 'כוסות רוח, 50 דקות', calendlyUrl: calendlyUrl('meet-with-me-2') },
+        booking: { label: 'כוסות רוח, 50 דקות', slug: 'meet-with-me-2' },
       },
       { label: 'טיפול אחר', nextId: 'select-treatment' },
     ],
@@ -167,12 +180,12 @@ export const chatNodes: ChatNode[] = [
     type: 'info',
     message:
       'עיסוי צוואר ופנים - עיסוי עדין וממוקד לאזורי הפנים, הצוואר והקרקפת - לשחרור מתח שרירי, הפחתת כאבי ראש ושיפור זרימת הדם לעור. 30 דקות ב-200 ₪.\n\n' +
-      'למי מתאים: מי שסובל ממתח בצוואר ובכתפיים, כאבי ראש מתח, או פשוט רוצה לשחרר את אזור הפנים והקרקפת בטיפול קצר וממוקד.',
+      'למי מתאים: מי שסובל מכאבי ראש מתח או מתח בצוואר, ומחפש טיפול קצר וממוקד לאזור הפנים והקרקפת - למשל כהפסקה קצרה באמצע יום עמוס, ולא כתחליף לעיסוי לכל הגוף.',
     options: [
       {
         label: 'קבוע תור לטיפול הזה',
         nextId: 'ask-phone',
-        booking: { label: 'עיסוי צוואר ופנים, 30 דקות', calendlyUrl: calendlyUrl('meet-with-me-3') },
+        booking: { label: 'עיסוי צוואר ופנים, 30 דקות', slug: 'meet-with-me-3' },
       },
       { label: 'טיפול אחר', nextId: 'select-treatment' },
     ],
@@ -227,7 +240,7 @@ export const chatNodes: ChatNode[] = [
     id: 'hours',
     type: 'info',
     message:
-      'אין שעות קבועות מראש - הזמינות מוצגת בזמן אמת בלוח השנה של קלנדלי. כשתבחרו טיפול ותלחצו לקביעת תור, תוכלו לראות ישר את כל התאריכים והשעות הפנויות.',
+      'אנחנו זמינים בין השעות 9:00-21:00. כשתבחרו טיפול ותלחצו לקביעת תור, תוכלו לראות במערכת ההזמנות את התאריכים והשעות הפנויות המדויקים.',
     options: [{ label: 'קביעת תור', nextId: 'select-treatment' }],
   },
   {
@@ -301,25 +314,25 @@ export const businessInfo = `
 
 1. עיסוי שוודי משולב - שילוב טכניקות עיסוי שוודי עם עבודה על נקודות שרירים עמוקים, להשגת איזון והרגעה מלאה של הגוף.
    משכים ומחירים: 45 דקות - 250 ₪ | 60 דקות - 300 ₪
-   קישורי הזמנה בקלנדלי: 45 דקות → ${calendlyUrl('new-meeting')} | 60 דקות → ${calendlyUrl('30min')}
+   קישורי הזמנה במערכת ההזמנות: 45 דקות → ${calendlyUrl('new-meeting')} | 60 דקות → ${calendlyUrl('30min')}
 
 2. עיסוי רפואי - טיפול ממוקד לבעיות שרירים, כאבים כרוניים, מתח ופציעות, מותאם אישית לצורך.
    משכים ומחירים: 45 דקות - 250 ₪ | 60 דקות - 300 ₪
-   קישורי הזמנה בקלנדלי: 45 דקות → ${calendlyUrl('meet-with-me')} | 60 דקות → ${calendlyUrl('60')}
+   קישורי הזמנה במערכת ההזמנות: 45 דקות → ${calendlyUrl('meet-with-me')} | 60 דקות → ${calendlyUrl('60')}
 
 3. אבנים חמות - עיסוי עם אבני בזלת חמות לשחרור שרירים עמוקים, שיפור זרימת הדם והרגעה מוחלטת.
    משך ומחיר: 50 דקות - 300 ₪
-   קישור הזמנה בקלנדלי: ${calendlyUrl('meet-with-me-1')}
+   קישור הזמנה במערכת ההזמנות: ${calendlyUrl('meet-with-me-1')}
 
 4. כוסות רוח - טיפול מסורתי לשחרור חסימות, שיפור זרימת הדם, הקלה על כאבים והפחתת דלקות. עלולות להשאיר סימנים זמניים על העור.
    משך ומחיר: 50 דקות - 300 ₪
-   קישור הזמנה בקלנדלי: ${calendlyUrl('meet-with-me-2')}
+   קישור הזמנה במערכת ההזמנות: ${calendlyUrl('meet-with-me-2')}
 
 5. עיסוי צוואר ופנים - עיסוי עדין וממוקד לאזורי הפנים, הצוואר והקרקפת - לשחרור מתח שרירי, הפחתת כאבי ראש ושיפור זרימת הדם לעור.
    משך ומחיר: 30 דקות - 200 ₪
-   קישור הזמנה בקלנדלי: ${calendlyUrl('meet-with-me-3')}
+   קישור הזמנה במערכת ההזמנות: ${calendlyUrl('meet-with-me-3')}
 
-שעות פתיחה: אין שעות קבועות - הזמינות מוצגת בזמן אמת בלוח השנה של קלנדלי.
+שעות פתיחה: 9:00-21:00. אפשר לבדוק את התאריכים והשעות הפנויים המדויקים במערכת ההזמנות בעת קביעת תור.
 מדיניות ביטולים: ביטול או שינוי תור בחינם עד 12 שעות לפני מועד הטיפול. ביטול בפחות מ-12 שעות מראש מחייב תשלום מלא על הטיפול.
 הערות נוספות: יש חבילות משתלמות - הפרטים ניתנים ביצירת קשר ישירה עם המטפל. ניתן לבחור את עוצמת המגע ולבקש לשנות אותה במהלך הטיפול. אין חובה להתקלח לפני הטיפול אך זה מומלץ, וכדאי להימנע מארוחה כבדה ממש לפני.
 `.trim();

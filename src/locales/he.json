@@ -145,6 +145,15 @@
     "subtitle": "בחרו את הזמן המתאים לכם",
     "loading": "טוען את מערכת ההזמנות..."
   },
+  "articlesSection": {
+    "title": "מאמרים",
+    "readMore": "לקריאת המאמר המלא"
+  },
+  "articlePage": {
+    "backToArticles": "לכל המאמרים",
+    "ctaQuestion": "יש לכם שאלה או רוצים לקבוע תור?",
+    "ctaButton": "לקביעת תור"
+  },
   "footer": {
     "rights": "כל הזכויות שמורות",
     "backToTop": "חזרה לראש הדף",

@@ -8,16 +8,10 @@ import {
   MAIN_MENU_NODE_ID,
   WHATSAPP_NUMBER,
   ChatOption,
+  buildCalendlyUrl,
 } from '@/data/chatbot-config';
 import { detectsBookingIntent, BOOKING_INTENT_NODE_ID } from '@/lib/chatbot-intent';
-
-declare global {
-  interface Window {
-    Calendly?: {
-      initPopupWidget: (options: { url: string }) => void;
-    };
-  }
-}
+import { useLang } from '@/lib/i18n/LangContext';
 
 interface DisplayMessage {
   role: 'bot' | 'user';
@@ -37,7 +31,7 @@ interface FormData {
 
 interface PendingBooking {
   label: string;
-  calendlyUrl: string;
+  slug: string;
 }
 
 const rootNode = chatNodes.find(n => n.id === ROOT_NODE_ID)!;
@@ -47,6 +41,7 @@ function interpolate(message: string, form: FormData): string {
 }
 
 export default function ChatBot() {
+  const { lang } = useLang();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
   const [currentNodeId, setCurrentNodeId] = useState<string>(ROOT_NODE_ID);
@@ -59,7 +54,19 @@ export default function ChatBot() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsOpen(true), 1200);
+    try {
+      if (sessionStorage.getItem('chatbot-auto-opened')) return;
+    } catch {
+      // sessionStorage unavailable - fall through and open once anyway
+    }
+    const timer = setTimeout(() => {
+      setIsOpen(true);
+      try {
+        sessionStorage.setItem('chatbot-auto-opened', '1');
+      } catch {
+        // ignore
+      }
+    }, 1200);
     return () => clearTimeout(timer);
   }, []);
 
@@ -100,9 +107,8 @@ export default function ChatBot() {
       const booking = option.booking ?? pendingBooking;
       setMessages(prev => [...prev, { role: 'user', text: option.label }]);
       if (booking) {
-        const url = form.name
-          ? `${booking.calendlyUrl}&name=${encodeURIComponent(form.name)}`
-          : booking.calendlyUrl;
+        const base = buildCalendlyUrl(booking.slug, lang);
+        const url = form.name ? `${base}&name=${encodeURIComponent(form.name)}` : base;
         window.Calendly?.initPopupWidget({ url });
         setMessages(prev => [
           ...prev,
