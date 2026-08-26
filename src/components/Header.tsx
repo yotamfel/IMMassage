@@ -19,6 +19,7 @@ export default function Header() {
     { href: '#home', label: t.nav.home },
     { href: '#services', label: t.nav.services },
     { href: '#about', label: t.nav.about },
+    { href: '#articles', label: t.nav.articles },
     { href: '#testimonials', label: t.nav.testimonials },
     { href: '#pricing', label: t.nav.pricing },
     { href: '#review', label: t.nav.review },
