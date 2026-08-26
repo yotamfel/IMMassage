@@ -18,9 +18,12 @@ export default function Booking() {
           <p className="text-primary text-base">{t.booking.subtitle}</p>
         </div>
 
-        <div className="border-2 border-black rounded-2xl overflow-hidden">
+        <div className="relative border-2 border-black rounded-2xl overflow-hidden" style={{ minHeight: 550 }}>
+          <div className="absolute inset-0 flex items-center justify-center text-primary-dark text-sm">
+            {t.booking.loading}
+          </div>
           <div
-            className="calendly-inline-widget"
+            className="calendly-inline-widget relative z-10"
             data-url={CALENDLY_URL}
             style={{ minWidth: 320, height: 550 }}
           />

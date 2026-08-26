@@ -142,7 +142,8 @@
   },
   "booking": {
     "title": "Book an Appointment",
-    "subtitle": "Choose the time that works for you"
+    "subtitle": "Choose the time that works for you",
+    "loading": "Loading the booking system..."
   },
   "footer": {
     "rights": "All rights reserved",

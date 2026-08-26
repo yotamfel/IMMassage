@@ -51,6 +51,10 @@ export default function RootLayout({
       dir="rtl"
       className={`${frankRuhl.variable} ${assistant.variable} ${heebo.variable}`}
     >
+      <head>
+        <link rel="preconnect" href="https://calendly.com" />
+        <link rel="preconnect" href="https://assets.calendly.com" />
+      </head>
 <body className="min-h-full">
         <Script
           async
