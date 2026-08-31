@@ -305,3 +305,15 @@ export const servicePages: ServicePage[] = [
 export function getServicePage(slug: string): ServicePage | undefined {
   return servicePages.find(p => p.slug === slug);
 }
+
+// Maps each blog article slug to the service page it should send readers
+// (and search relevance) to, so the article and the service page don't end
+// up competing for the same keyword. Articles with no single matching
+// treatment (general overview / unrelated topics) fall back to the pillar
+// page in ArticleView.
+export const articleToServiceSlug: Record<string, string> = {
+  swedish: 'swedish-massage-jerusalem',
+  medical: 'medical-massage-jerusalem',
+  'hot-stones': 'hot-stone-massage-jerusalem',
+  cupping: 'cupping-jerusalem',
+};
