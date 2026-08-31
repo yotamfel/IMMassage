@@ -67,7 +67,15 @@
       "My vision is to help people with pain, stress, or tension, and treat them through touch. I believe massage is a wonderful tool that can solve many problems such as chronic pain, mental stress, muscle tightness, and movement difficulties.",
       "I believe in providing treatment that is personally tailored to each person according to the need that brought them in.",
       "So whether you're experiencing muscle pain or simply want to release stress and disconnect from daily pressures - you've come to the right place. My goal is to give you a calming and grounding experience that helps you release tension and reconnect with your body."
-    ]
+    ],
+    "certificates": {
+      "title": "Certifications",
+      "items": [
+        { "src": "/assets/certificate-swedish.jpg", "alt": "Certificate in Holistic Swedish Massage" },
+        { "src": "/assets/certificate-integrative.jpg", "alt": "Certificate in Integrative Massage" },
+        { "src": "/assets/certificate-medical.jpg", "alt": "Diploma in Medical Massage" }
+      ]
+    }
   },
   "testimonials": {
     "title": "What Clients Say",

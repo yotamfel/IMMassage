@@ -1,6 +1,7 @@
 'use client';
 
 import { useLang } from '@/lib/i18n/LangContext';
+import CertificateCarousel from './CertificateCarousel';
 
 export default function About() {
   const { t } = useLang();
@@ -41,6 +42,8 @@ export default function About() {
               {para}
             </p>
           ))}
+
+          <CertificateCarousel />
         </div>
 
       </div>
