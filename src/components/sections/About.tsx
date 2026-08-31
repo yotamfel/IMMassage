@@ -14,12 +14,15 @@ export default function About() {
           {/* Photo */}
           <div className="flex justify-center">
             <div className="relative w-full max-w-xs h-80 md:w-80 md:h-96 rounded-3xl overflow-hidden shadow-lg">
-              <img
-                src="/assets/masseur-photo.jpg"
-                alt="ישראל מתוסוב"
-                className="w-full h-full object-cover object-top"
-                loading="lazy"
-              />
+              <picture>
+                <source srcSet="/assets/masseur-photo.webp" type="image/webp" />
+                <img
+                  src="/assets/masseur-photo.jpg"
+                  alt="ישראל מתוסוב"
+                  className="w-full h-full object-cover object-top"
+                  loading="lazy"
+                />
+              </picture>
             </div>
           </div>
 

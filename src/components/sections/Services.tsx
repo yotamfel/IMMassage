@@ -73,13 +73,16 @@ function ServiceCard({ id, title, description }: { id: string; title: string; de
       {/* Image */}
       <div className="relative h-44 overflow-hidden">
         {!imgError ? (
-          <img
-            src={serviceImages[id]}
-            alt={title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            loading="lazy"
-            onError={() => setImgError(true)}
-          />
+          <picture>
+            <source srcSet={serviceImages[id].replace('.jpg', '.webp')} type="image/webp" />
+            <img
+              src={serviceImages[id]}
+              alt={title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              loading="lazy"
+              onError={() => setImgError(true)}
+            />
+          </picture>
         ) : (
           <div className={`w-full h-full bg-gradient-to-br ${servicePlaceholderColors[id]} flex items-center justify-center`}>
             <div className="text-primary/30">
