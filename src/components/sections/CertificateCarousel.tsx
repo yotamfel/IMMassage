@@ -50,12 +50,12 @@ export default function CertificateCarousel() {
   };
 
   return (
-    <div className="mt-10">
+    <div className="mt-10 text-center">
       <h3 className="text-lg font-medium text-[#111] mb-3">
         {t.about.certificates.title}
       </h3>
 
-      <div className="relative w-40">
+      <div className="relative w-40 mx-auto">
         <div
           className="group relative aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-white border border-black/5 cursor-pointer"
           onClick={() => setLightboxOpen(true)}
