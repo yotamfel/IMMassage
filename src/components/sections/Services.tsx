@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useLang } from '@/lib/i18n/LangContext';
 
 const serviceImages: Record<string, string> = {
@@ -55,8 +56,17 @@ const serviceIcons: Record<string, React.ReactNode> = {
   ),
 };
 
+const serviceSlugs: Record<string, string> = {
+  cupping: 'cupping-jerusalem',
+  'hot-stones': 'hot-stone-massage-jerusalem',
+  medical: 'medical-massage-jerusalem',
+  swedish: 'swedish-massage-jerusalem',
+  'face-neck': 'face-neck-massage-jerusalem',
+};
+
 function ServiceCard({ id, title, description }: { id: string; title: string; description: string }) {
   const [imgError, setImgError] = useState(false);
+  const { t } = useLang();
 
   return (
     <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
@@ -92,7 +102,15 @@ function ServiceCard({ id, title, description }: { id: string; title: string; de
         <h3 className="text-lg font-bold text-primary-dark mb-2">
           {title}
         </h3>
-        <p className="text-sm text-[#555] leading-relaxed">{description}</p>
+        <p className="text-sm text-[#555] leading-relaxed mb-3">{description}</p>
+        {serviceSlugs[id] && (
+          <Link
+            href={`/${serviceSlugs[id]}`}
+            className="inline-block text-sm text-primary hover:text-primary-dark font-medium transition-colors"
+          >
+            {t.services.learnMore} &larr;
+          </Link>
+        )}
       </div>
     </div>
   );

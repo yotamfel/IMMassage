@@ -22,15 +22,30 @@ const heebo = Heebo({
   weight: ['300', '400', '500'],
 });
 
+const SITE_URL = 'https://www.israel-massge.co.il';
+
 export const metadata: Metadata = {
-  title: 'שחרור במגע | עיסוי מקצועי לגברים בירושלים',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'שחרור במגע | עיסוי מקצועי לגברים בירושלים',
+    template: '%s | שחרור במגע',
+  },
   description:
     'עיסוי מקצועי לגברים בירושלים – עיסוי רפואי, שוודי, כוסות רוח ואבנים חמות. בוגר מכללת רידמן. 050-8838374',
   keywords: 'עיסוי, עיסוי רפואי, עיסוי שוודי, כוסות רוח, אבנים חמות, ירושלים, מעסה',
+  alternates: {
+    canonical: '/',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 
   openGraph: {
     title: 'שחרור במגע | עיסוי מקצועי לגברים בירושלים',
     description: 'עיסוי מקצועי לגברים בירושלים. עיסוי רפואי, שוודי, כוסות רוח, אבנים חמות.',
+    url: SITE_URL,
+    siteName: 'שחרור במגע',
     locale: 'he_IL',
     type: 'website',
   },
@@ -38,6 +53,39 @@ export const metadata: Metadata = {
   verification: {
     google: 'bG1AUQMw4XX8EW-T1idI0AD4Al51qxXjFkU86j3pnyc',
   },
+};
+
+const localBusinessJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  name: 'שחרור במגע',
+  description: 'עיסוי מקצועי לגברים בירושלים – עיסוי רפואי, שוודי, כוסות רוח ואבנים חמות.',
+  url: SITE_URL,
+  telephone: '+972508838374',
+  priceRange: '₪₪',
+  areaServed: {
+    '@type': 'City',
+    name: 'ירושלים',
+  },
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'בן בבא 1',
+    addressLocality: 'ירושלים',
+    addressCountry: 'IL',
+  },
+  employee: {
+    '@type': 'Person',
+    name: 'ישראל מתוסוב',
+    jobTitle: 'מטפל מוסמך בעיסוי שוודי ואינטגרטיבי',
+    alumniOf: 'מכללת רידמן',
+  },
+};
+
+const websiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'שחרור במגע',
+  url: SITE_URL,
 };
 
 export default function RootLayout({
@@ -55,6 +103,14 @@ export default function RootLayout({
         <link rel="preconnect" href="https://calendly.com" />
         <link rel="preconnect" href="https://assets.calendly.com" />
         <link rel="stylesheet" href="https://assets.calendly.com/assets/external/widget.css" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
       </head>
 <body className="min-h-full">
         <Script

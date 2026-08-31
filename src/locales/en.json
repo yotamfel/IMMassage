@@ -11,9 +11,9 @@
     "review": "Leave a Review"
   },
   "hero": {
-    "title": "Shichrur Bemaga",
-    "subtitle": "Your path to healing and release",
-    "description": "Professional massage for men, combining Swedish, medical, and advanced therapeutic techniques – for pain relief, stress release, and restoring body-mind balance.",
+    "title": "Massage for Men in Jerusalem – Shichrur Bemaga",
+    "subtitle": "Israel Matusov – Certified Therapist",
+    "description": "Professional massage for men in Jerusalem, tailored to your needs. Medical, Swedish, hot stone, cupping massage and more.",
     "cta1": "Book a Session",
     "cta2": "View Treatments",
     "phone": "050-8838374"
@@ -27,8 +27,32 @@
       "Personalized techniques"
     ]
   },
+  "whyUs": {
+    "title": "Why Choose Shichrur Bemaga",
+    "items": [
+      { "title": "Certified therapist", "desc": "Israel Matusov, a graduate of Ridman College in Swedish and integrative massage." },
+      { "title": "Personalized treatment", "desc": "Every session is tailored to what brought you in, and you can adjust the pressure even mid-session." },
+      { "title": "A range of treatments", "desc": "Swedish, medical, hot stone, cupping, and face & neck massage - all in one place." },
+      { "title": "At-home option too", "desc": "Available at two locations in Jerusalem, or as a home visit depending on the service area." }
+    ]
+  },
+  "homeFaq": {
+    "title": "Frequently Asked Questions",
+    "items": [
+      { "q": "Is the massage for men only?", "a": "Yes, all treatments on this site are for men only." },
+      { "q": "Where do treatments take place?", "a": "At two locations in Jerusalem - Ben Baba 1 and Chaim Brody 15 - as well as home visits depending on the service area and availability." },
+      { "q": "Is there a home visit option?", "a": "Yes, home visits in Jerusalem can be arranged, depending on the service area and availability." },
+      { "q": "How much does a treatment cost?", "a": "Prices range between 200-300 NIS depending on the treatment and duration. See the full price list on the pricing page." },
+      { "q": "How long does a treatment take?", "a": "Depends on the treatment - 30 minutes for face & neck, 45-60 minutes for Swedish or medical, and 50 minutes for hot stone or cupping." },
+      { "q": "What's the difference between medical and Swedish massage?", "a": "Medical massage focuses on a specific issue like pain or chronic tension, while Swedish massage focuses more on overall relaxation." },
+      { "q": "How do I book an appointment?", "a": "The easiest way is to message on WhatsApp, or book directly through the booking system on the site." },
+      { "q": "Can treatments be combined?", "a": "Yes, treatment types can be combined depending on your needs - it's best to mention this in advance when booking." },
+      { "q": "What is the cancellation policy?", "a": "You can cancel or reschedule for free up to 12 hours before the appointment. Cancelling with less than 12 hours' notice incurs the full treatment charge." }
+    ]
+  },
   "services": {
     "title": "Treatments",
+    "learnMore": "Learn More",
     "items": [
       {
         "id": "cupping",
@@ -64,7 +88,7 @@
     "badge": "Ridman College Graduate",
     "bio": [
       "Nice to meet you! I'm Israel Matusov, a certified massage therapist.",
-      "My vision is to help people with pain, stress, or tension, and treat them through touch. I believe massage is a wonderful tool that can solve many problems such as chronic pain, mental stress, muscle tightness, and movement difficulties.",
+      "My vision is to help people with pain, stress, or tension, and treat them through touch. I believe massage is a wonderful tool that can help ease many issues such as chronic pain, mental stress, muscle tightness, and movement difficulties.",
       "I believe in providing treatment that is personally tailored to each person according to the need that brought them in.",
       "So whether you're experiencing muscle pain or simply want to release stress and disconnect from daily pressures - you've come to the right place. My goal is to give you a calming and grounding experience that helps you release tension and reconnect with your body."
     ],
@@ -159,6 +183,7 @@
   },
   "articlePage": {
     "backToArticles": "All articles",
+    "pillarLink": "See all info on massage for men in Jerusalem ←",
     "ctaQuestion": "Have a question or want to book an appointment?",
     "ctaButton": "Book an Appointment"
   },

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useLang } from '@/lib/i18n/LangContext';
 
 export default function Header() {
@@ -16,14 +17,14 @@ export default function Header() {
   }, []);
 
   const navLinks = [
-    { href: '#home', label: t.nav.home },
-    { href: '#services', label: t.nav.services },
-    { href: '#about', label: t.nav.about },
-    { href: '#articles', label: t.nav.articles },
-    { href: '#testimonials', label: t.nav.testimonials },
-    { href: '#pricing', label: t.nav.pricing },
-    { href: '#contact', label: t.nav.contact },
-    { href: '#review', label: t.nav.review },
+    { href: '/#home', label: t.nav.home },
+    { href: '/#services', label: t.nav.services },
+    { href: '/#about', label: t.nav.about },
+    { href: '/#articles', label: t.nav.articles },
+    { href: '/#testimonials', label: t.nav.testimonials },
+    { href: '/#pricing', label: t.nav.pricing },
+    { href: '/#contact', label: t.nav.contact },
+    { href: '/#review', label: t.nav.review },
   ];
 
   return (
@@ -36,7 +37,7 @@ export default function Header() {
     >
       <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
         {/* Logo — text shown by default, replaced by image once loaded */}
-        <a href="#home" className="flex items-center shrink-0 h-10" aria-label="שחרור במגע">
+        <Link href="/#home" className="flex items-center shrink-0 h-10" aria-label="שחרור במגע">
           <span
             className="text-xl font-bold text-primary-dark"
             style={{ fontFamily: 'var(--font-frank-ruhl), serif', display: logoLoaded ? 'none' : 'block' }}
@@ -51,18 +52,18 @@ export default function Header() {
             onLoad={() => setLogoLoaded(true)}
             onError={() => setLogoLoaded(false)}
           />
-        </a>
+        </Link>
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-6">
           {navLinks.map(link => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               className="text-sm font-medium text-primary-dark hover:text-primary transition-colors"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -77,12 +78,12 @@ export default function Header() {
 
 
           {/* Hamburger */}
-          <a
-            href="#booking"
+          <Link
+            href="/#booking"
             className="hidden md:inline-flex items-center bg-primary text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-primary-dark transition-colors shadow"
           >
             {t.nav.bookNow}
-          </a>
+          </Link>
 
           <button
             className="md:hidden p-2 text-primary-dark"
@@ -106,22 +107,22 @@ export default function Header() {
       {menuOpen && (
         <div className="md:hidden bg-cream/98 backdrop-blur-md border-t border-primary/10 px-5 py-4">
           {navLinks.map(link => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               onClick={() => setMenuOpen(false)}
               className="block py-3 text-primary-dark font-medium border-b border-primary/10 last:border-0 hover:text-primary transition-colors"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
-          <a
-            href="#booking"
+          <Link
+            href="/#booking"
             onClick={() => setMenuOpen(false)}
             className="mt-4 block text-center bg-primary text-white font-semibold py-3 rounded-full hover:bg-primary-dark transition-colors"
           >
             {t.nav.bookNow}
-          </a>
+          </Link>
         </div>
       )}
     </header>

@@ -18,6 +18,7 @@ export default function About() {
                 src="/assets/masseur-photo.jpg"
                 alt="ישראל מתוסוב"
                 className="w-full h-full object-cover object-top"
+                loading="lazy"
               />
             </div>
           </div>

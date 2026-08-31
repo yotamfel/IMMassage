@@ -27,12 +27,12 @@ export default function CertificateCarousel() {
     if (!lightboxOpen) return;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setLightboxOpen(false);
-      if (e.key === 'ArrowLeft') prev();
-      if (e.key === 'ArrowRight') next();
+      if (e.key === 'ArrowLeft') setCurrent(i => (i === 0 ? items.length - 1 : i - 1));
+      if (e.key === 'ArrowRight') setCurrent(i => (i === items.length - 1 ? 0 : i + 1));
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [lightboxOpen]);
+  }, [lightboxOpen, items.length]);
 
   if (items.length === 0) return null;
 
@@ -44,7 +44,7 @@ export default function CertificateCarousel() {
     if (touchStartX.current === null) return;
     const delta = e.changedTouches[0].clientX - touchStartX.current;
     if (Math.abs(delta) > 40) {
-      delta > 0 ? prev() : next();
+      if (delta > 0) prev(); else next();
     }
     touchStartX.current = null;
   };
@@ -66,6 +66,7 @@ export default function CertificateCarousel() {
             src={items[current].src}
             alt={items[current].alt}
             className="w-full h-full object-contain"
+            loading="lazy"
           />
 
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
