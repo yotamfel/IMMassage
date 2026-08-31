@@ -8,7 +8,6 @@ import Articles from '@/components/sections/Articles';
 import Testimonials from '@/components/sections/Testimonials';
 import Pricing from '@/components/sections/Pricing';
 import FAQSection from '@/components/sections/FAQSection';
-import Booking from '@/components/sections/Booking';
 import Contact from '@/components/sections/Contact';
 import ReviewForm from '@/components/sections/ReviewForm';
 import Footer from '@/components/sections/Footer';
@@ -28,7 +27,6 @@ export default function Home() {
       <Testimonials />
       <Pricing />
       <FAQSection />
-      <Booking />
       <Contact />
       <ReviewForm />
       <Footer />

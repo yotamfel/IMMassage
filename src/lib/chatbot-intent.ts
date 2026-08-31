@@ -23,4 +23,4 @@ export function detectsBookingIntent(text: string): boolean {
 }
 
 // Node the user should land on when booking intent is detected mid-chat.
-export const BOOKING_INTENT_NODE_ID = 'book-select-service';
+export const BOOKING_INTENT_NODE_ID = 'select-treatment';

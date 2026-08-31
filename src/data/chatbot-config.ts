@@ -4,46 +4,26 @@
 // The conversation has two entry paths that both end up at select-treatment:
 //   1. The guided flow (root -> reason -> ...) - matches the business owner's
 //      own script: ask name, ask what brought them in, recommend a treatment,
-//      offer duration/price, take a phone number, then confirm - book /
-//      talk to a person / try a different treatment.
+//      offer duration/price, take a phone number, then confirm - hand off to
+//      WhatsApp with the collected details, or try a different treatment.
 //   2. general-menu - a flat menu (prices, hours, cancellation policy, FAQ,
 //      free-form AI chat) reachable via "יש לי שאלה אחרת" or the persistent
 //      "חזרה לתפריט הראשי" button.
 //
-// A `booking` option carries the specific Calendly event slug for that
-// treatment + duration; ChatBot.tsx stores it and opens it (via
-// buildCalendlyUrl, which adds the current UI language) once name + phone
-// are collected.
+// There is no on-site booking/scheduling system - every path ends with the
+// user contacting the business owner directly (WhatsApp or phone). A
+// `booking` option just carries a human-readable label (treatment + duration)
+// used to prefill that WhatsApp message.
 
 export interface ChatOption {
   label: string;
   nextId: string;
-  booking?: { label: string; slug: string };
+  booking?: { label: string };
 }
 
 export type ChatNode =
   | { id: string; type: 'menu' | 'info'; message: string; options: ChatOption[] }
   | { id: string; type: 'input'; message: string; variable: 'name' | 'phone' | 'painArea'; nextId: string };
-
-export const CALENDLY_BASE = 'https://calendly.com/matusov19961';
-
-// Shared Calendly embed color params, matching the site's booking widget.
-const CAL_PARAMS = 'background_color=ede3d5&text_color=000000&primary_color=2f6b6b';
-
-function calendlyUrl(slug: string) {
-  return `${CALENDLY_BASE}/${slug}?${CAL_PARAMS}`;
-}
-
-// Builds a Calendly URL - for a specific event slug, or (when omitted) the
-// top-level scheduling page listing all event types - in the requested UI
-// language. Calendly's own chrome (buttons, "Select a Date & Time", etc.)
-// switches with `locale`; the event name/location text is whatever the
-// business owner set up in their Calendly account and can't be translated
-// from here.
-export function buildCalendlyUrl(slug: string | undefined, lang: 'he' | 'en' = 'he') {
-  const url = slug ? calendlyUrl(slug) : `${CALENDLY_BASE}?${CAL_PARAMS}`;
-  return lang === 'en' ? `${url}&locale=en` : url;
-}
 
 export const chatNodes: ChatNode[] = [
   // ---- Guided flow (business owner's script) ----
@@ -106,12 +86,12 @@ export const chatNodes: ChatNode[] = [
       {
         label: '45 דקות - 250 ₪',
         nextId: 'ask-phone',
-        booking: { label: 'עיסוי שוודי, 45 דקות', slug: 'new-meeting' },
+        booking: { label: 'עיסוי שוודי, 45 דקות' },
       },
       {
         label: '60 דקות - 300 ₪',
         nextId: 'ask-phone',
-        booking: { label: 'עיסוי שוודי, 60 דקות', slug: '30min' },
+        booking: { label: 'עיסוי שוודי, 60 דקות' },
       },
       { label: 'חזרה', nextId: 'select-treatment' },
     ],
@@ -135,12 +115,12 @@ export const chatNodes: ChatNode[] = [
       {
         label: '45 דקות - 250 ₪',
         nextId: 'ask-phone',
-        booking: { label: 'עיסוי רפואי, 45 דקות', slug: 'meet-with-me' },
+        booking: { label: 'עיסוי רפואי, 45 דקות' },
       },
       {
         label: '60 דקות - 300 ₪',
         nextId: 'ask-phone',
-        booking: { label: 'עיסוי רפואי, 60 דקות', slug: '60' },
+        booking: { label: 'עיסוי רפואי, 60 דקות' },
       },
       { label: 'חזרה', nextId: 'select-treatment' },
     ],
@@ -155,7 +135,7 @@ export const chatNodes: ChatNode[] = [
       {
         label: 'קבוע תור לטיפול הזה',
         nextId: 'ask-phone',
-        booking: { label: 'אבנים חמות, 50 דקות', slug: 'meet-with-me-1' },
+        booking: { label: 'אבנים חמות, 50 דקות' },
       },
       { label: 'טיפול אחר', nextId: 'select-treatment' },
     ],
@@ -170,7 +150,7 @@ export const chatNodes: ChatNode[] = [
       {
         label: 'קבוע תור לטיפול הזה',
         nextId: 'ask-phone',
-        booking: { label: 'כוסות רוח, 50 דקות', slug: 'meet-with-me-2' },
+        booking: { label: 'כוסות רוח, 50 דקות' },
       },
       { label: 'טיפול אחר', nextId: 'select-treatment' },
     ],
@@ -185,7 +165,7 @@ export const chatNodes: ChatNode[] = [
       {
         label: 'קבוע תור לטיפול הזה',
         nextId: 'ask-phone',
-        booking: { label: 'עיסוי צוואר ופנים, 30 דקות', slug: 'meet-with-me-3' },
+        booking: { label: 'עיסוי צוואר ופנים, 30 דקות' },
       },
       { label: 'טיפול אחר', nextId: 'select-treatment' },
     ],
@@ -203,8 +183,7 @@ export const chatNodes: ChatNode[] = [
     type: 'menu',
     message: 'נשמע שזה בדיוק מה שחיפשת?',
     options: [
-      { label: 'כן, אני רוצה להזמין', nextId: 'CONFIRM_BOOK' },
-      { label: 'אני רוצה לדבר עם ישראל', nextId: 'HANDOFF_WHATSAPP' },
+      { label: 'כן, בואו נקבע תור', nextId: 'HANDOFF_WHATSAPP' },
       { label: 'אני רוצה לבדוק טיפול אחר', nextId: 'select-treatment' },
     ],
   },
@@ -240,7 +219,7 @@ export const chatNodes: ChatNode[] = [
     id: 'hours',
     type: 'info',
     message:
-      'אנחנו זמינים בימים א׳-ה׳ בין השעות 9:00-21:00. בימי שישי ושבת סגור. כשתבחרו טיפול ותלחצו לקביעת תור, תוכלו לראות במערכת ההזמנות את התאריכים והשעות הפנויות המדויקים.',
+      'אנחנו זמינים בימים א׳-ה׳ בין השעות 9:00-21:00. בימי שישי ושבת סגור. לקביעת תור בזמן מדויק פשוט תכתבו לנו בוואטסאפ.',
     options: [{ label: 'קביעת תור', nextId: 'select-treatment' }],
   },
   {
@@ -314,25 +293,20 @@ export const businessInfo = `
 
 1. עיסוי שוודי משולב - שילוב טכניקות עיסוי שוודי עם עבודה על נקודות שרירים עמוקים, להשגת איזון והרגעה מלאה של הגוף.
    משכים ומחירים: 45 דקות - 250 ₪ | 60 דקות - 300 ₪
-   קישורי הזמנה במערכת ההזמנות: 45 דקות → ${calendlyUrl('new-meeting')} | 60 דקות → ${calendlyUrl('30min')}
 
 2. עיסוי רפואי - טיפול ממוקד לבעיות שרירים, כאבים כרוניים, מתח ופציעות, מותאם אישית לצורך.
    משכים ומחירים: 45 דקות - 250 ₪ | 60 דקות - 300 ₪
-   קישורי הזמנה במערכת ההזמנות: 45 דקות → ${calendlyUrl('meet-with-me')} | 60 דקות → ${calendlyUrl('60')}
 
 3. אבנים חמות - עיסוי עם אבני בזלת חמות לשחרור שרירים עמוקים, שיפור זרימת הדם והרגעה מוחלטת.
    משך ומחיר: 50 דקות - 300 ₪
-   קישור הזמנה במערכת ההזמנות: ${calendlyUrl('meet-with-me-1')}
 
 4. כוסות רוח - טיפול מסורתי לשחרור חסימות, שיפור זרימת הדם, הקלה על כאבים והפחתת דלקות. עלולות להשאיר סימנים זמניים על העור.
    משך ומחיר: 50 דקות - 300 ₪
-   קישור הזמנה במערכת ההזמנות: ${calendlyUrl('meet-with-me-2')}
 
 5. עיסוי צוואר ופנים - עיסוי עדין וממוקד לאזורי הפנים, הצוואר והקרקפת - לשחרור מתח שרירי, הפחתת כאבי ראש ושיפור זרימת הדם לעור.
    משך ומחיר: 30 דקות - 200 ₪
-   קישור הזמנה במערכת ההזמנות: ${calendlyUrl('meet-with-me-3')}
 
-שעות פתיחה: ימים א׳-ה׳ 9:00-21:00, בימי שישי ושבת סגור. אפשר לבדוק את התאריכים והשעות הפנויים המדויקים במערכת ההזמנות בעת קביעת תור.
+שעות פתיחה: ימים א׳-ה׳ 9:00-21:00, בימי שישי ושבת סגור. אין מערכת הזמנות עצמאית באתר - כל קביעת תור נעשית ישירות מול ישראל בוואטסאפ או בטלפון.
 מדיניות ביטולים: ביטול או שינוי תור בחינם עד 12 שעות לפני מועד הטיפול. ביטול בפחות מ-12 שעות מראש מחייב תשלום מלא על הטיפול.
 הערות נוספות: יש חבילות משתלמות - הפרטים ניתנים ביצירת קשר ישירה עם המטפל. ניתן לבחור את עוצמת המגע ולבקש לשנות אותה במהלך הטיפול. אין חובה להתקלח לפני הטיפול אך זה מומלץ, וכדאי להימנע מארוחה כבדה ממש לפני.
 סוג השמן: משתמשים בשמן שקדים או קרם עיסוי, ובמידת הצורך משולבים גם שמנים אתריים.

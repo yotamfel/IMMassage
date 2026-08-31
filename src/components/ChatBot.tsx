@@ -8,10 +8,8 @@ import {
   MAIN_MENU_NODE_ID,
   WHATSAPP_NUMBER,
   ChatOption,
-  buildCalendlyUrl,
 } from '@/data/chatbot-config';
 import { detectsBookingIntent, BOOKING_INTENT_NODE_ID } from '@/lib/chatbot-intent';
-import { useLang } from '@/lib/i18n/LangContext';
 
 interface DisplayMessage {
   role: 'bot' | 'user';
@@ -31,7 +29,6 @@ interface FormData {
 
 interface PendingBooking {
   label: string;
-  slug: string;
 }
 
 const rootNode = chatNodes.find(n => n.id === ROOT_NODE_ID)!;
@@ -41,7 +38,6 @@ function interpolate(message: string, form: FormData): string {
 }
 
 export default function ChatBot() {
-  const { lang } = useLang();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
   const [currentNodeId, setCurrentNodeId] = useState<string>(ROOT_NODE_ID);
@@ -101,25 +97,6 @@ export default function ChatBot() {
 
     if (option.booking) {
       setPendingBooking(option.booking);
-    }
-
-    if (option.nextId === 'CONFIRM_BOOK') {
-      const booking = option.booking ?? pendingBooking;
-      setMessages(prev => [...prev, { role: 'user', text: option.label }]);
-      if (booking) {
-        const base = buildCalendlyUrl(booking.slug, lang);
-        const url = form.name ? `${base}&name=${encodeURIComponent(form.name)}` : base;
-        window.Calendly?.initPopupWidget({ url });
-        setMessages(prev => [
-          ...prev,
-          {
-            role: 'bot',
-            text: `מעולה${form.name ? ' ' + form.name : ''}! פתחתי לך את לוח השנה לבחירת תאריך ושעה ל${booking.label} 😊`,
-          },
-        ]);
-      }
-      goToMainMenu();
-      return;
     }
 
     if (option.nextId === 'HANDOFF_WHATSAPP') {

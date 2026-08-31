@@ -45,7 +45,7 @@
       { "q": "How much does a treatment cost?", "a": "Prices range between 200-300 NIS depending on the treatment and duration. See the full price list on the pricing page." },
       { "q": "How long does a treatment take?", "a": "Depends on the treatment - 30 minutes for face & neck, 45-60 minutes for Swedish or medical, and 50 minutes for hot stone or cupping." },
       { "q": "What's the difference between medical and Swedish massage?", "a": "Medical massage focuses on a specific issue like pain or chronic tension, while Swedish massage focuses more on overall relaxation." },
-      { "q": "How do I book an appointment?", "a": "The easiest way is to message on WhatsApp, or book directly through the booking system on the site." },
+      { "q": "How do I book an appointment?", "a": "The easiest way is to message on WhatsApp or call directly." },
       { "q": "Can treatments be combined?", "a": "Yes, treatment types can be combined depending on your needs - it's best to mention this in advance when booking." },
       { "q": "What is the cancellation policy?", "a": "You can cancel or reschedule for free up to 12 hours before the appointment. Cancelling with less than 12 hours' notice incurs the full treatment charge." },
       { "q": "What are the opening hours?", "a": "Sunday-Thursday, 9:00-21:00. Closed on Fridays and Saturdays." }
@@ -143,8 +143,8 @@
     ]
   },
   "contact": {
-    "title": "Contact Us",
-    "subtitle": "We'd love to schedule your appointment",
+    "title": "Contact & Booking",
+    "subtitle": "To book an appointment or ask a question, reach out directly",
     "callLabel": "Call Directly",
     "whatsappLabel": "WhatsApp",
     "form": {
@@ -172,11 +172,6 @@
     "starLabel": "Choose a rating",
     "namePlaceholder": "Your name (optional)",
     "anonymous": "Reviews are submitted completely anonymously"
-  },
-  "booking": {
-    "title": "Book an Appointment",
-    "subtitle": "Choose the time that works for you",
-    "loading": "Loading the booking system..."
   },
   "articlesSection": {
     "title": "Articles",

@@ -79,7 +79,7 @@ export default function Header() {
 
           {/* Hamburger */}
           <Link
-            href="/#booking"
+            href="/#contact"
             className="hidden md:inline-flex items-center bg-primary text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-primary-dark transition-colors shadow"
           >
             {t.nav.bookNow}
@@ -117,7 +117,7 @@ export default function Header() {
             </Link>
           ))}
           <Link
-            href="/#booking"
+            href="/#contact"
             onClick={() => setMenuOpen(false)}
             className="mt-4 block text-center bg-primary text-white font-semibold py-3 rounded-full hover:bg-primary-dark transition-colors"
           >

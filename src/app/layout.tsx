@@ -106,9 +106,6 @@ export default function RootLayout({
       className={`${frankRuhl.variable} ${assistant.variable} ${heebo.variable}`}
     >
       <head>
-        <link rel="preconnect" href="https://calendly.com" />
-        <link rel="preconnect" href="https://assets.calendly.com" />
-        <link rel="stylesheet" href="https://assets.calendly.com/assets/external/widget.css" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
@@ -119,10 +116,6 @@ export default function RootLayout({
         />
       </head>
 <body className="min-h-full">
-        <Script
-          src="https://assets.calendly.com/assets/external/widget.js"
-          strategy="afterInteractive"
-        />
         <Script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-YW8K99BW11"
