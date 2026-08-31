@@ -47,7 +47,8 @@
       { "q": "What's the difference between medical and Swedish massage?", "a": "Medical massage focuses on a specific issue like pain or chronic tension, while Swedish massage focuses more on overall relaxation." },
       { "q": "How do I book an appointment?", "a": "The easiest way is to message on WhatsApp, or book directly through the booking system on the site." },
       { "q": "Can treatments be combined?", "a": "Yes, treatment types can be combined depending on your needs - it's best to mention this in advance when booking." },
-      { "q": "What is the cancellation policy?", "a": "You can cancel or reschedule for free up to 12 hours before the appointment. Cancelling with less than 12 hours' notice incurs the full treatment charge." }
+      { "q": "What is the cancellation policy?", "a": "You can cancel or reschedule for free up to 12 hours before the appointment. Cancelling with less than 12 hours' notice incurs the full treatment charge." },
+      { "q": "What are the opening hours?", "a": "Sunday-Thursday, 9:00-21:00. Closed on Fridays and Saturdays." }
     ]
   },
   "services": {

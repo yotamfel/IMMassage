@@ -79,6 +79,12 @@ const localBusinessJsonLd = {
     jobTitle: 'מטפל מוסמך בעיסוי שוודי ואינטגרטיבי',
     alumniOf: 'מכללת רידמן',
   },
+  openingHoursSpecification: {
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
+    opens: '09:00',
+    closes: '21:00',
+  },
 };
 
 const websiteJsonLd = {
