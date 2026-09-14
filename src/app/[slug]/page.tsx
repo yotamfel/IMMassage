@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/sections/Footer';
 import TrustBar from '@/components/sections/TrustBar';
 import Articles from '@/components/sections/Articles';
+import Booking from '@/components/sections/Booking';
 import WhatsAppFAB from '@/components/WhatsAppFAB';
 import ChatBot from '@/components/ChatBot';
 import ContentBlocks from '@/components/ContentBlocks';
@@ -227,6 +228,7 @@ export default async function ServicePage({
 
       <TrustBar />
       <Articles />
+      <Booking />
       <Footer />
       <WhatsAppFAB />
       <ChatBot />

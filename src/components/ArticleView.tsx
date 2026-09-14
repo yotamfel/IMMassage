@@ -49,7 +49,7 @@ export default function ArticleView({ article }: { article: Article }) {
             {t.articlePage.ctaQuestion}
           </p>
           <Link
-            href="/#contact"
+            href="/#booking"
             className="inline-flex items-center bg-primary text-white text-sm font-medium px-6 py-3 rounded-full hover:bg-primary-dark transition-colors shadow"
           >
             {t.articlePage.ctaButton}
