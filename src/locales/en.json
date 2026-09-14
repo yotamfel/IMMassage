@@ -13,7 +13,7 @@
   "hero": {
     "title": "Massage for Men in Jerusalem – Shichrur Bemaga",
     "subtitle": "Israel Matusov – Certified Therapist",
-    "description": "Professional massage for men in Jerusalem, tailored to your needs. Medical, Swedish, hot stone, cupping massage and more.",
+    "description": "I offer professional massage for men in Jerusalem, tailored to your needs - medical, Swedish, hot stone, cupping massage and more.",
     "cta1": "Book a Session",
     "cta2": "View Treatments",
     "phone": "050-8838374"
@@ -30,10 +30,10 @@
   "whyUs": {
     "title": "Why Choose Shichrur Bemaga",
     "items": [
-      { "title": "Certified therapist", "desc": "Israel Matusov, a graduate of Ridman College in Swedish and integrative massage." },
-      { "title": "Personalized treatment", "desc": "Every session is tailored to what brought you in, and you can adjust the pressure even mid-session." },
-      { "title": "A range of treatments", "desc": "Swedish, medical, hot stone, cupping, and face & neck massage - all in one place." },
-      { "title": "At-home option too", "desc": "Available at two locations in Jerusalem, or as a home visit depending on the service area." }
+      { "title": "Certified therapist", "desc": "I'm Israel Matusov, a graduate of Ridman College in Swedish and integrative massage." },
+      { "title": "Personalized treatment", "desc": "I tailor every session to what brought you in, and you can adjust the pressure even mid-session." },
+      { "title": "A range of treatments", "desc": "I offer Swedish, medical, hot stone, cupping, and face & neck massage - all in one place." },
+      { "title": "At-home option too", "desc": "I treat at two locations in Jerusalem, or come to you for a home visit depending on the service area." }
     ]
   },
   "homeFaq": {
@@ -130,9 +130,9 @@
     "subtitle": "Personalized treatment, results you feel",
     "note": "Treatments for men only",
     "packagesTitle": "Value Packages",
-    "packagesDesc": "Details on packages and promotions – we'd love to update you!",
-    "contactCta": "Contact Us",
-    "voucherLabel": "To purchase a gift voucher, contact us",
+    "packagesDesc": "Details on packages and promotions – I'd love to update you!",
+    "contactCta": "Contact Me",
+    "voucherLabel": "To purchase a gift voucher, contact me",
     "voucherWhatsapp": "Hi, I'd like to buy a gift voucher",
     "items": [
       { "name": "Swedish Massage", "variants": [{ "duration": "45 min", "price": "₪250" }, { "duration": "60 min", "price": "₪300" }] },
@@ -163,7 +163,7 @@
   },
   "review": {
     "title": "Leave a Review",
-    "subtitle": "Your review is completely anonymous and helps us improve",
+    "subtitle": "Your review is completely anonymous and helps me improve",
     "placeholder": "Share your experience (optional)...",
     "submit": "Submit Review",
     "sending": "Sending...",
@@ -179,7 +179,7 @@
     "namePlaceholder": "Your full name",
     "phonePlaceholder": "Phone number",
     "emailPlaceholder": "Email (optional)",
-    "emailNote": "So we can send a reminder an hour before your appointment",
+    "emailNote": "So I can send a reminder an hour before your appointment",
     "submit": "Send Request",
     "submitting": "Sending...",
     "noSlots": "No available slots at the moment",
