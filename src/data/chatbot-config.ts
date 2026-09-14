@@ -30,7 +30,7 @@ export const chatNodes: ChatNode[] = [
   {
     id: 'root',
     type: 'input',
-    message: 'היי! איזה כיף שהגעת אלי, אני שחרור במגע 😊\n\nמה השם שלך?',
+    message: 'היי! איזה כיף שהגעת אלי, אני ישראל משחרור במגע 😊\n\nמה השם שלך?',
     variable: 'name',
     nextId: 'reason',
   },
