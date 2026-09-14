@@ -15,5 +15,5 @@ jobs:
     steps:
       - name: Trigger reminder check
         run: |
-          curl -sf -X GET "https://israel-massge.co.il/api/cron/reminders" \
+          curl -sf -X GET "https://www.israel-massge.co.il/api/cron/reminders" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
