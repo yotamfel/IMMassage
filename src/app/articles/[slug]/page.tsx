@@ -23,9 +23,13 @@ export async function generateMetadata({
   return {
     title: `${article.he.title} | שחרור במגע`,
     description: article.he.metaDescription,
+    alternates: {
+      canonical: `/articles/${article.slug}`,
+    },
     openGraph: {
       title: article.he.title,
       description: article.he.metaDescription,
+      url: `/articles/${article.slug}`,
       locale: 'he_IL',
       type: 'article',
     },
