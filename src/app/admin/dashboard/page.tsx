@@ -51,7 +51,14 @@ function isAppointmentStarted(b: Booking): boolean {
   return new Date() >= new Date(`${b.slots.date}T${b.slots.time}`);
 }
 
-function todayStr() { return new Date().toISOString().split('T')[0]; }
+function toLocalDateStr(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function todayStr() { return toLocalDateStr(new Date()); }
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -139,7 +146,7 @@ export default function AdminDashboard() {
     setCalSelectedDay(prev => {
       const d = new Date(prev);
       d.setDate(d.getDate() + dir * 7);
-      return d.toISOString().split('T')[0];
+      return toLocalDateStr(d);
     });
   };
 
@@ -325,7 +332,7 @@ export default function AdminDashboard() {
               {/* Day chips */}
               <div className="flex gap-1.5 px-3 pb-4 overflow-x-auto">
                 {weekDays.map(day => {
-                  const ds = day.toISOString().split('T')[0];
+                  const ds = toLocalDateStr(day);
                   const isSel = calSelectedDay === ds;
                   const isT = ds === todayStr();
                   const dayHasAppt = slots.some(s => s.date === ds && s.is_booked);
