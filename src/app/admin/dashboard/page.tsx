@@ -103,6 +103,38 @@ export default function AdminDashboard() {
     fetchData();
   };
 
+  // Duplicates last week's open-hour pattern (same weekday + time) onto the
+  // currently visible week, skipping hours that already have a slot.
+  const copyFromLastWeek = async () => {
+    const toCreate: { date: string; time: string }[] = [];
+    const existing = new Set(slots.map(s => `${s.date}_${s.time.slice(0, 5)}`));
+    for (const day of weekDays) {
+      const target = toLocalDateStr(day);
+      const ref = new Date(day);
+      ref.setDate(ref.getDate() - 7);
+      const refStr = toLocalDateStr(ref);
+      for (const s of slots.filter(s => s.date === refStr)) {
+        const time = s.time.slice(0, 5);
+        const key = `${target}_${time}`;
+        if (!existing.has(key)) {
+          toCreate.push({ date: target, time });
+          existing.add(key);
+        }
+      }
+    }
+    if (toCreate.length === 0) {
+      alert('אין שעות מהשבוע שעבר להעתיק, או שכולן כבר פתוחות השבוע');
+      return;
+    }
+    if (!window.confirm(`לפתוח ${toCreate.length} שעות תואמות לשבוע שעבר?`)) return;
+    await Promise.all(toCreate.map(s => fetch('/api/slots', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date: s.date, time: s.time, location: JSON.stringify(ALL_LOCATIONS), duration_minutes: 60 }),
+    })));
+    fetchData();
+  };
+
   const removeCalendarSlot = async (id: string) => {
     await fetch(`/api/slots/${id}`, { method: 'DELETE' });
     fetchData();
@@ -357,6 +389,11 @@ export default function AdminDashboard() {
                 })}
               </div>
             </div>
+
+            <button onClick={copyFromLastWeek}
+              className="w-full flex items-center justify-center gap-2 text-sm font-medium text-[#2F6B6B] bg-white border border-[#2F6B6B]/20 hover:bg-[#2F6B6B]/5 rounded-xl py-2.5 transition-colors">
+              ↻ פתח שעות כמו בשבוע שעבר
+            </button>
 
             {/* Hourly grid */}
             <div className="space-y-1.5">

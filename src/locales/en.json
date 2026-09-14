@@ -188,7 +188,8 @@
     "successTitle": "Request sent!",
     "successText": "Israel will contact you shortly to confirm your appointment.",
     "sendWhatsApp": "Send request via WhatsApp",
-    "minuteShort": "min"
+    "minuteShort": "min",
+    "locationNote": "For final coordination or to check if the location can be changed - feel free to reach out on WhatsApp"
   },
   "articlesSection": {
     "title": "Articles",

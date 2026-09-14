@@ -15,11 +15,15 @@ const TREATMENTS: Treatment[] = [
 
 const ISRAEL_PHONE = '972508838374';
 
-function parseLocations(locationStr: string): string[] {
-  try {
-    const parsed = JSON.parse(locationStr);
-    return Array.isArray(parsed) ? parsed : [locationStr];
-  } catch { return [locationStr]; }
+// Location depends on the slot's hour, not on what's stored on the slot:
+// up to and including 14:00 it's fixed to בן בבא 1, from 15:00 it's a
+// choice between a home visit and חיים ברודי 15.
+const MORNING_LOCATION = 'בן בבא 1, ירושלים';
+const AFTERNOON_LOCATIONS = ['ביקור בבית הלקוח', 'חיים ברודי 15, ירושלים'];
+
+function locationOptionsForSlot(slot: Slot): string[] {
+  const hour = parseInt(slot.time.slice(0, 2), 10);
+  return hour <= 14 ? [MORNING_LOCATION] : AFTERNOON_LOCATIONS;
 }
 
 function formatPhone(phone: string): string {
@@ -76,7 +80,7 @@ export default function Booking() {
 
   const handleSelectSlot = (slot: Slot) => {
     setSelectedSlot(slot);
-    const locs = parseLocations(slot.location);
+    const locs = locationOptionsForSlot(slot);
     setSelectedLocation(locs.length === 1 ? locs[0] : '');
     setSelectedTreatment(null);
     setSelectedDuration(null);
@@ -197,7 +201,7 @@ export default function Booking() {
 
                 {/* Details form */}
                 {step === 'details' && selectedSlot && (() => {
-                  const locations = parseLocations(selectedSlot.location);
+                  const locations = locationOptionsForSlot(selectedSlot);
                   return (
                     <div id="booking-form" className="border-t border-primary/10 bg-primary/3 p-4 space-y-4">
                       {/* Header */}
@@ -229,6 +233,10 @@ export default function Booking() {
                         </div>
                       )}
                       {locations.length === 1 && <p className="text-xs text-gray-500">📍 {selectedLocation}</p>}
+                      <a href={`https://wa.me/${ISRAEL_PHONE}`} target="_blank" rel="noopener noreferrer"
+                        className="block text-xs text-primary/80 hover:text-primary underline">
+                        {t.booking.locationNote}
+                      </a>
 
                       {/* Treatment selector */}
                       <div>
