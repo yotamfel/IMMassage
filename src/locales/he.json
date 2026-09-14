@@ -178,6 +178,8 @@
     "subtitle": "בחרו את הזמן המתאים לכם",
     "namePlaceholder": "שמך המלא",
     "phonePlaceholder": "מספר טלפון",
+    "emailPlaceholder": "אימייל (לא חובה)",
+    "emailNote": "לשליחת תזכורת שעה לפני התור",
     "submit": "שלח בקשה",
     "submitting": "שולח...",
     "noSlots": "אין שעות פנויות כרגע",

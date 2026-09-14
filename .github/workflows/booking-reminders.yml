@@ -1,0 +1,19 @@
+name: Booking reminders
+
+# Vercel Hobby cron jobs only run once a day, which isn't fine-grained
+# enough for a "1 hour before the appointment" reminder - so GitHub Actions
+# pings the reminder endpoint every 15 minutes instead. The endpoint itself
+# decides who's actually due and is a no-op otherwise.
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger reminder check
+        run: |
+          curl -sf -X GET "https://israel-massge.co.il/api/cron/reminders" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

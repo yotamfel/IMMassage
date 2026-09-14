@@ -9,7 +9,7 @@ function formatDateHe(dateStr: string) {
 }
 
 export async function POST(req: NextRequest) {
-  const { slot_id, client_name, client_phone, selected_location, treatment_name, duration_minutes } = await req.json();
+  const { slot_id, client_name, client_phone, client_email, selected_location, treatment_name, duration_minutes } = await req.json();
   if (!slot_id || !client_name || !client_phone) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   }
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   const locationToSave = selected_location || slot.location;
   const { data: booking, error } = await supabase
     .from('bookings')
-    .insert({ slot_id, client_name, client_phone, status: 'pending', selected_location: locationToSave, treatment_name, duration_minutes })
+    .insert({ slot_id, client_name, client_phone, client_email: client_email || null, status: 'pending', selected_location: locationToSave, treatment_name, duration_minutes })
     .select().single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
           <table style="width:100%;border-collapse:collapse">
             <tr><td style="padding:8px;font-weight:bold">שם:</td><td style="padding:8px">${client_name}</td></tr>
             <tr><td style="padding:8px;font-weight:bold">טלפון:</td><td style="padding:8px" dir="ltr">${client_phone}</td></tr>
+            ${client_email ? `<tr><td style="padding:8px;font-weight:bold">אימייל:</td><td style="padding:8px" dir="ltr">${client_email}</td></tr>` : ''}
             <tr><td style="padding:8px;font-weight:bold">תאריך:</td><td style="padding:8px">${formatDateHe(slot.date)}</td></tr>
             <tr><td style="padding:8px;font-weight:bold">שעה:</td><td style="padding:8px">${slot.time.slice(0, 5)}</td></tr>
             <tr><td style="padding:8px;font-weight:bold">מיקום:</td><td style="padding:8px">${locationToSave}</td></tr>

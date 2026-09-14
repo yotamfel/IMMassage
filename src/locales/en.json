@@ -178,6 +178,8 @@
     "subtitle": "Choose the time that works for you",
     "namePlaceholder": "Your full name",
     "phonePlaceholder": "Phone number",
+    "emailPlaceholder": "Email (optional)",
+    "emailNote": "So we can send a reminder an hour before your appointment",
     "submit": "Send Request",
     "submitting": "Sending...",
     "noSlots": "No available slots at the moment",

@@ -60,6 +60,7 @@ export default function Booking() {
   const [selectedDuration, setSelectedDuration] = useState<number | null>(null);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [step, setStep] = useState<'select' | 'details' | 'success'>('select');
   const [submitting, setSubmitting] = useState(false);
 
@@ -107,6 +108,7 @@ export default function Booking() {
         slot_id: selectedSlot.id,
         client_name: name,
         client_phone: formatPhone(phone),
+        client_email: email.trim() || null,
         selected_location: selectedLocation,
         treatment_name: isHe ? selectedTreatment.he : selectedTreatment.en,
         duration_minutes: selectedDuration,
@@ -274,17 +276,25 @@ export default function Booking() {
                       )}
 
                       {/* Name + Phone + Submit */}
-                      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
-                        <input type="text" value={name} onChange={e => setName(e.target.value)} required
-                          placeholder={t.booking.namePlaceholder}
-                          className="flex-1 border border-primary/20 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white" />
-                        <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required
-                          placeholder={t.booking.phonePlaceholder} dir="ltr"
-                          className="flex-1 border border-primary/20 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white" />
-                        <button type="submit" disabled={submitting || !canSubmit}
-                          className="bg-primary hover:bg-primary-dark text-white font-semibold px-5 py-2.5 rounded-xl transition-colors disabled:opacity-50 text-sm whitespace-nowrap">
-                          {submitting ? t.booking.submitting : t.booking.submit}
-                        </button>
+                      <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+                        <div>
+                          <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                            placeholder={t.booking.emailPlaceholder} dir="ltr"
+                            className="w-full border border-primary/20 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white" />
+                          <p className="text-xs text-gray-400 mt-1">{t.booking.emailNote}</p>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <input type="text" value={name} onChange={e => setName(e.target.value)} required
+                            placeholder={t.booking.namePlaceholder}
+                            className="flex-1 border border-primary/20 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white" />
+                          <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required
+                            placeholder={t.booking.phonePlaceholder} dir="ltr"
+                            className="flex-1 border border-primary/20 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white" />
+                          <button type="submit" disabled={submitting || !canSubmit}
+                            className="bg-primary hover:bg-primary-dark text-white font-semibold px-5 py-2.5 rounded-xl transition-colors disabled:opacity-50 text-sm whitespace-nowrap">
+                            {submitting ? t.booking.submitting : t.booking.submit}
+                          </button>
+                        </div>
                       </form>
                     </div>
                   );
