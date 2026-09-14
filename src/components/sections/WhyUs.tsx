@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useLang } from '@/lib/i18n/LangContext';
 
 const icons = [
@@ -38,15 +39,23 @@ export default function WhyUs() {
         </h2>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {t.whyUs.items.map((item, i) => (
-            <div key={i} className="bg-cream rounded-2xl p-6 text-center flex flex-col items-center gap-3">
-              <div className="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-                {icons[i]}
+          {t.whyUs.items.map((item, i) => {
+            const isHomeVisit = i === 3;
+            const card = (
+              <div className={`bg-cream rounded-2xl p-6 text-center flex flex-col items-center gap-3 h-full ${isHomeVisit ? 'hover:shadow-md hover:bg-cream/60 transition-shadow' : ''}`}>
+                <div className="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                  {icons[i]}
+                </div>
+                <p className="font-bold text-primary-dark">{item.title}</p>
+                <p className="text-sm text-[#666] leading-relaxed">{item.desc}</p>
               </div>
-              <p className="font-bold text-primary-dark">{item.title}</p>
-              <p className="text-sm text-[#666] leading-relaxed">{item.desc}</p>
-            </div>
-          ))}
+            );
+            return isHomeVisit ? (
+              <Link key={i} href="/home-massage-jerusalem">{card}</Link>
+            ) : (
+              <div key={i}>{card}</div>
+            );
+          })}
         </div>
       </div>
     </section>

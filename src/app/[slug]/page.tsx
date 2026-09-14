@@ -47,6 +47,7 @@ export async function generateMetadata({
       url: `/${page.slug}`,
       locale: 'he_IL',
       type: 'website',
+      images: [{ url: '/assets/masseur-photo.jpg', width: 2000, height: 1125, alt: page.title }],
     },
   };
 }
@@ -85,10 +86,34 @@ export default async function ServicePage({
 
   const otherServicePages = servicePages.filter(p => p.serviceId && p.serviceId !== page.serviceId);
 
+  // Only for the 5 real, individually-priced treatments - not the pillar or
+  // home-visit pages, which don't have one single price to declare.
+  const serviceJsonLd = page.serviceId && pricingItem ? {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: page.h1,
+    description: page.metaDescription,
+    provider: {
+      '@type': 'LocalBusiness',
+      name: 'שחרור במגע',
+      url: 'https://www.israel-massge.co.il',
+    },
+    areaServed: { '@type': 'City', name: 'ירושלים' },
+    offers: pricingItem.variants.map(v => ({
+      '@type': 'Offer',
+      price: v.price.replace(/[^\d]/g, ''),
+      priceCurrency: 'ILS',
+      description: v.duration,
+    })),
+  } : null;
+
   return (
     <main>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      {serviceJsonLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }} />
+      )}
 
       <Header />
 

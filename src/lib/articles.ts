@@ -803,3 +803,38 @@ export function getArticle(slug: string): Article | undefined {
 export function getArticleContent(article: Article, lang: 'he' | 'en'): ArticleContent {
   return article[lang];
 }
+
+// Extracts genuine Q&A pairs already present in the article body, for
+// FAQPage schema - never fabricates questions that aren't actually on the
+// page. Most articles mark their FAQ section with a "שאלות נפוצות" block;
+// the dedicated FAQ article has no such marker since the whole body (after
+// the intro) is Q&A already, so it starts from the first h2 instead.
+export function getArticleFaq(article: Article): { q: string; a: string }[] {
+  const blocks = article.he.blocks;
+  let startIdx: number;
+  if (article.slug === 'faq') {
+    startIdx = blocks.findIndex(b => b.type === 'h2');
+  } else {
+    const markerIdx = blocks.findIndex(
+      b => (b.type === 'p' || b.type === 'h2') && b.text.trim().startsWith('שאלות נפוצות')
+    );
+    startIdx = markerIdx === -1 ? -1 : markerIdx + 1;
+  }
+  if (startIdx === -1) return [];
+
+  const faq: { q: string; a: string }[] = [];
+  let current: { q: string; a: string[] } | null = null;
+  for (let i = startIdx; i < blocks.length; i++) {
+    const b = blocks[i];
+    if (b.type === 'h2') {
+      if (current && current.a.length) faq.push({ q: current.q, a: current.a.join(' ') });
+      current = { q: b.text, a: [] };
+    } else if (b.type === 'p' && current) {
+      current.a.push(b.text);
+    } else if (b.type === 'ul' && current) {
+      current.a.push(b.items.join(', '));
+    }
+  }
+  if (current && current.a.length) faq.push({ q: current.q, a: current.a.join(' ') });
+  return faq;
+}

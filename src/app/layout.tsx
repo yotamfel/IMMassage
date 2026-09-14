@@ -48,6 +48,7 @@ export const metadata: Metadata = {
     siteName: 'שחרור במגע',
     locale: 'he_IL',
     type: 'website',
+    images: [{ url: '/assets/masseur-photo.jpg', width: 2000, height: 1125, alt: 'ישראל מתוסוב - שחרור במגע' }],
   },
 
   verification: {
