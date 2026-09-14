@@ -27,14 +27,14 @@ export function confirmationLink(clientPhone: string, clientName: string, slot: 
 
 // Israel → client: rejection
 export function rejectionLink(clientPhone: string, clientName: string): string {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shichrur-bemaga.vercel.app';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.israel-massge.co.il';
   const msg = `שלום ${clientName}, מצטערים – הזמן הזה כבר לא פנוי.\nלקביעת תור חדש: ${siteUrl}/#booking`;
   return `https://wa.me/${formatPhone(clientPhone)}?text=${encodeURIComponent(msg)}`;
 }
 
 // Israel → client: review reminder
 export function reviewReminderLink(clientPhone: string, clientName: string): string {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shichrur-bemaga.vercel.app';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.israel-massge.co.il';
   const msg = `היי ${clientName}, נשמח שתשאיר ביקורת קצרה על הטיפול:\n${siteUrl}/#review`;
   return `https://wa.me/${formatPhone(clientPhone)}?text=${encodeURIComponent(msg)}`;
 }

@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
             ${treatment_name ? `<tr><td style="padding:8px;font-weight:bold">טיפול:</td><td style="padding:8px">${treatment_name} · ${duration_minutes} דקות</td></tr>` : ''}
           </table>
           <br>
-          <a href="https://shahrur-bamaga.vercel.app/admin" style="background:#2F6B6B;color:white;padding:12px 24px;text-decoration:none;border-radius:8px;display:inline-block">כנס לניהול תורים →</a>
+          <a href="https://www.israel-massge.co.il/admin" style="background:#2F6B6B;color:white;padding:12px 24px;text-decoration:none;border-radius:8px;display:inline-block">כנס לניהול תורים →</a>
         </div>`,
       });
     } catch (e) {

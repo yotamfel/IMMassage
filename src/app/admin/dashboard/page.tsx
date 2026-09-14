@@ -38,12 +38,12 @@ function finalConfirmationLink(b: Booking): string {
 }
 
 function rejectionLink(b: Booking): string {
-  const msg = `שלום ${b.client_name}, מצטערים - הזמן הזה כבר לא פנוי.\nלקביעת תור חדש: https://shahrur-bamaga.vercel.app/#booking`;
+  const msg = `שלום ${b.client_name}, מצטערים - הזמן הזה כבר לא פנוי.\nלקביעת תור חדש: https://www.israel-massge.co.il/#booking`;
   return `https://wa.me/${formatPhone(b.client_phone)}?text=${encodeURIComponent(msg)}`;
 }
 
 function reviewLink(b: Booking): string {
-  const msg = `היי! שמחתי לטפל בך.\nאם תרצה, אשמח שתשאיר לי ביקורת קצרה - זה עוזר לי מאוד.\nאפשר דרך הקישור הזה (לוקח פחות מדקה):\nhttps://shahrur-bamaga.vercel.app/#review\n\nחשוב מאוד, יכול להיות שביום אחרי הטיפול תהיה הרגשה של שרירים תפוסים וכאבים באזורים עליהם עבדתי. הכאב יחלוף תוך כמה ימים, מומלץ לא לעשות כושר עד 24 שעות לאחר הטיפול.`;
+  const msg = `היי! שמחתי לטפל בך.\nאם תרצה, אשמח שתשאיר לי ביקורת קצרה - זה עוזר לי מאוד.\nאפשר דרך הקישור הזה (לוקח פחות מדקה):\nhttps://www.israel-massge.co.il/#review\n\nחשוב מאוד, יכול להיות שביום אחרי הטיפול תהיה הרגשה של שרירים תפוסים וכאבים באזורים עליהם עבדתי. הכאב יחלוף תוך כמה ימים, מומלץ לא לעשות כושר עד 24 שעות לאחר הטיפול.`;
   return `https://wa.me/${formatPhone(b.client_phone)}?text=${encodeURIComponent(msg)}`;
 }
 

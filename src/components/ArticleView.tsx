@@ -6,11 +6,23 @@ import type { Article } from '@/lib/articles';
 import { articleToServiceSlug, getServicePage } from '@/lib/servicePages';
 import ContentBlocks from './ContentBlocks';
 
+// Articles with no single matching service page all fall back to linking
+// the pillar page - varying the anchor text per article avoids every one
+// of them repeating the exact same link text site-wide.
+const PILLAR_LINK_TEXT: Record<string, { he: string; en: string }> = {
+  'jerusalem-massage': { he: 'לכל סוגי הטיפולים לגברים בירושלים ←', en: 'See all treatment types for men in Jerusalem ←' },
+  faq: { he: 'עוד על הטיפולים לגברים בירושלים ←', en: 'More about treatments for men in Jerusalem ←' },
+  stretching: { he: 'טיפולי עיסוי לגברים בירושלים ←', en: 'Massage treatments for men in Jerusalem ←' },
+  'swedish-vs-medical': { he: 'השוואת כל הטיפולים באתר ←', en: 'Compare all treatments on the site ←' },
+  'man-to-man-massage': { he: 'כל הטיפולים בשחרור במגע ←', en: 'All treatments at Shichrur BeMaga ←' },
+};
+
 export default function ArticleView({ article }: { article: Article }) {
   const { t, lang } = useLang();
   const content = article[lang];
   const relatedServiceSlug = articleToServiceSlug[article.slug];
   const relatedServicePage = relatedServiceSlug ? getServicePage(relatedServiceSlug) : undefined;
+  const pillarLinkText = PILLAR_LINK_TEXT[article.slug]?.[lang] ?? t.articlePage.pillarLink;
 
   return (
     <article className="pt-32 pb-20 px-5">
@@ -40,7 +52,7 @@ export default function ArticleView({ article }: { article: Article }) {
             href="/massage-for-men-jerusalem"
             className="inline-block mt-6 text-sm text-primary hover:text-primary-dark font-medium transition-colors"
           >
-            {t.articlePage.pillarLink}
+            {pillarLinkText}
           </Link>
         )}
 
