@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useLang } from '@/lib/i18n/LangContext';
 
+const GOOGLE_REVIEW_LINK = 'https://g.page/r/CXJn7nSMc3zHEAI/review';
+
 export default function ReviewForm() {
   const { t } = useLang();
   const [stars, setStars] = useState(0);
@@ -10,6 +12,7 @@ export default function ReviewForm() {
   const [name, setName] = useState('');
   const [text, setText] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [submittedStars, setSubmittedStars] = useState(0);
 
   const active = hovered || stars;
 
@@ -24,6 +27,7 @@ export default function ReviewForm() {
         body: JSON.stringify({ stars, text: text.trim(), name: name.trim() }),
       });
       if (res.ok) {
+        setSubmittedStars(stars);
         setStatus('success');
         setStars(0);
         setName('');
@@ -59,6 +63,19 @@ export default function ReviewForm() {
             <p className="text-xl font-semibold text-primary-dark">
               {t.review.success}
             </p>
+            {submittedStars >= 4 && (
+              <div className="mt-6 pt-6 border-t border-primary/10">
+                <p className="text-sm text-[#555] mb-3">{t.review.googlePrompt}</p>
+                <a
+                  href={GOOGLE_REVIEW_LINK}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold px-5 py-2.5 rounded-xl transition-colors text-sm"
+                >
+                  {t.review.googleButton}
+                </a>
+              </div>
+            )}
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-md p-6 md:p-8">

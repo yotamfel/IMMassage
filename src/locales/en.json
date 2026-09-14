@@ -164,6 +164,8 @@
   "review": {
     "title": "Leave a Review",
     "subtitle": "Your review is completely anonymous and helps me improve",
+    "googlePrompt": "So glad to hear it! If you don't mind, I'd love a short review on Google too - it really helps",
+    "googleButton": "Write a Google Review",
     "placeholder": "Share your experience (optional)...",
     "submit": "Submit Review",
     "sending": "Sending...",
