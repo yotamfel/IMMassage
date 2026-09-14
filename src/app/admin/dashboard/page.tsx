@@ -25,15 +25,15 @@ function formatPhone(phone: string): string {
 
 function questionnaireLink(b: Booking): string {
   const url = process.env.NEXT_PUBLIC_MEDICAL_FORM_URL || '';
-  const msg = `שלום ${b.client_name}! תודה על פנייתך 🙏\nכדי שנוכל לאשר את התור, אנא מלא שאלון רפואי קצר:\n${url}\nלאחר מילוי השאלון נחזור אליך לאישור הסופי.`;
+  const msg = `שלום ${b.client_name}! תודה על פנייתך.\nכדי שנוכל לאשר את התור, אנא מלא שאלון רפואי קצר:\n${url}\nלאחר מילוי השאלון נחזור אליך לאישור הסופי.`;
   return `https://wa.me/${formatPhone(b.client_phone)}?text=${encodeURIComponent(msg)}`;
 }
 
 function finalConfirmationLink(b: Booking): string {
   const location = b.selected_location || displayLocation(b.slots?.location || '');
   const duration = b.duration_minutes || b.slots?.duration_minutes || 60;
-  const treatment = b.treatment_name ? `\n💆 ${b.treatment_name}` : '';
-  const msg = `שלום ${b.client_name}! התור שלך אושר סופית ✅\n📅 ${formatDate(b.slots.date)} בשעה ${b.slots.time.slice(0,5)}\n📍 ${location}${treatment}\n⏱️ ${duration} דקות\nמצפה לראותך!\n\nשים ❤️, ניתן לבטל תור עד 24 שעות לפני. תור שיבוטל בסמוך יחויב מחיר מלא.`;
+  const treatment = b.treatment_name ? `\n${b.treatment_name}` : '';
+  const msg = `שלום ${b.client_name}! התור שלך אושר סופית.\n${formatDate(b.slots.date)} בשעה ${b.slots.time.slice(0,5)}\n${location}${treatment}\n${duration} דקות\nמצפה לראותך!\n\nשים לב, ניתן לבטל תור עד 12 שעות לפני. תור שיבוטל בסמוך יחויב מחיר מלא.`;
   return `https://wa.me/${formatPhone(b.client_phone)}?text=${encodeURIComponent(msg)}`;
 }
 
