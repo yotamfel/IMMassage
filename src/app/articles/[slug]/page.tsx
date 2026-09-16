@@ -50,9 +50,9 @@ export default async function ArticlePage({
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@position': 1, '@type': 'ListItem', name: 'בית', item: 'https://www.israel-massge.co.il/' },
-      { '@position': 2, '@type': 'ListItem', name: 'מאמרים', item: 'https://www.israel-massge.co.il/#articles' },
-      { '@position': 3, '@type': 'ListItem', name: article.he.title, item: `https://www.israel-massge.co.il/articles/${article.slug}` },
+      { position: 1, '@type': 'ListItem', name: 'בית', item: 'https://www.israel-massge.co.il/' },
+      { position: 2, '@type': 'ListItem', name: 'מאמרים', item: 'https://www.israel-massge.co.il/#articles' },
+      { position: 3, '@type': 'ListItem', name: article.he.title, item: `https://www.israel-massge.co.il/articles/${article.slug}` },
     ],
   };
 

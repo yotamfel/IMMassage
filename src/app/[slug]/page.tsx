@@ -69,8 +69,8 @@ export default async function ServicePage({
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@position': 1, '@type': 'ListItem', name: 'בית', item: 'https://www.israel-massge.co.il/' },
-      { '@position': 2, '@type': 'ListItem', name: page.breadcrumbLabel, item: `https://www.israel-massge.co.il/${page.slug}` },
+      { position: 1, '@type': 'ListItem', name: 'בית', item: 'https://www.israel-massge.co.il/' },
+      { position: 2, '@type': 'ListItem', name: page.breadcrumbLabel, item: `https://www.israel-massge.co.il/${page.slug}` },
     ],
   };
 
