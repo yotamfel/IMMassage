@@ -20,8 +20,6 @@ const SERVICE_ID_TO_PRICING_NAME: Record<string, string> = {
   'face-neck': 'עיסוי פנים וצוואר',
 };
 
-const WA_NUMBER = '972508838374';
-
 export function generateStaticParams() {
   return servicePages.map(page => ({ slug: page.slug }));
 }
@@ -240,12 +238,10 @@ export default async function ServicePage({
               רוצים לקבוע תור או שיש לכם שאלה?
             </p>
             <a
-              href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`היי, אשמח לקבוע תור ל${page.breadcrumbLabel}`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
+              href="#booking"
               className="inline-flex items-center bg-primary text-white text-sm font-medium px-6 py-3 rounded-full hover:bg-primary-dark transition-colors shadow"
             >
-              קביעת תור בוואטסאפ
+              קביעת תור
             </a>
           </div>
         </div>
