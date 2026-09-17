@@ -1,32 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { israelWallTimeToUTC } from '@/lib/timezone';
 import { Resend } from 'resend';
-
-// Slot dates/times are entered by the admin in Israel local time, but this
-// route runs on the server (UTC) - so `new Date(\`${date}T${time}\`)` would
-// silently misinterpret them by the current Israel/UTC offset (+2 or +3
-// depending on DST). This resolves the wall-clock time to the correct UTC
-// instant regardless of DST.
-function getTimeZoneOffsetMinutes(timeZone: string, date: Date): number {
-  const dtf = new Intl.DateTimeFormat('en-US', {
-    timeZone,
-    hourCycle: 'h23',
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', second: '2-digit',
-  });
-  const parts: Record<string, string> = {};
-  for (const p of dtf.formatToParts(date)) parts[p.type] = p.value;
-  const asUTC = Date.UTC(+parts.year, +parts.month - 1, +parts.day, +parts.hour, +parts.minute, +parts.second);
-  return (asUTC - date.getTime()) / 60000;
-}
-
-function israelWallTimeToUTC(dateStr: string, timeStr: string): Date {
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const [hh, mm] = timeStr.split(':').map(Number);
-  const naiveUTC = new Date(Date.UTC(y, m - 1, d, hh, mm));
-  const offsetMin = getTimeZoneOffsetMinutes('Asia/Jerusalem', naiveUTC);
-  return new Date(naiveUTC.getTime() - offsetMin * 60000);
-}
 
 function formatDateHe(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('he-IL', { weekday: 'long', day: 'numeric', month: 'long' });

@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { getIsraelNowParts } from '@/lib/timezone';
 
 export async function GET() {
-  const now = new Date();
-  const today = now.toISOString().split('T')[0];
-  const currentTime = now.toTimeString().slice(0, 8);
+  const { date: today, time: currentTime } = getIsraelNowParts();
 
   const { data, error } = await supabase
     .from('slots')
