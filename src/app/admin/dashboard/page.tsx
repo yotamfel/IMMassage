@@ -410,7 +410,7 @@ export default function AdminDashboard() {
                       <span className="text-xs text-gray-900 font-medium w-11 text-left flex-shrink-0 tabular-nums">{timeStr}</span>
                       <div className="flex-1 h-px bg-gray-200/60 group-hover:bg-[#2F6B6B]/20 transition-colors" />
                       <button onClick={() => addSlotFromCalendar(calSelectedDay, hour)}
-                        className="opacity-0 group-hover:opacity-100 text-xs text-[#2F6B6B] bg-[#2F6B6B]/8 hover:bg-[#2F6B6B]/15 px-3 py-1 rounded-lg border border-dashed border-[#2F6B6B]/30 transition-all flex-shrink-0">
+                        className="opacity-70 group-hover:opacity-100 text-xs text-[#2F6B6B] bg-[#2F6B6B]/8 hover:bg-[#2F6B6B]/15 px-3 py-1 rounded-lg border border-dashed border-[#2F6B6B]/30 transition-all flex-shrink-0">
                         + פתח
                       </button>
                     </div>
